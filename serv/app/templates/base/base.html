@@ -9,10 +9,12 @@
     {% endblock %}
 </head>
 <body>
-
+<div id="wrapper">
     {% block body%}
     {% include 'base/menu.html' %}
     {% include 'base/feed.html' %}
+
     {% endblock %}
+</div>
 </body>
 </html>
