@@ -1,0 +1,12 @@
+{% extends 'base/base.html' %}
+
+{% block head %}
+    {{ super() }}
+    {% include "index/js.html" %}
+    {% include "index/css.html" %}
+{% endblock %}
+
+{% block body %}
+{{super()}}
+<div class="container">
+    {% include 'index/header.html' %}
