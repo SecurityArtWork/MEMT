@@ -1,0 +1,3 @@
+-r common.txt
+Flask-DebugToolbar==0.10.0
+coverage==4.0.2
