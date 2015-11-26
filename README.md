@@ -4,4 +4,4 @@
 
 ## Requirements
 
-## Instalation
+## Installation
