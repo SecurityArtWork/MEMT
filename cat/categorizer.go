@@ -54,6 +54,11 @@ func main() {
 		os.Exit(1)
 	}
 
+	if _, err := ioutil.ReadDir(dirFlag); err != nil {
+		fmt.Printf("[!] %s is not a valid directory", dirFlag)
+		os.Exit(1)
+	}
+
 	catalog()
 }
 
@@ -80,16 +85,16 @@ func catalog() {
 
 		element.Ssdeep = hash
 		element.Sha256 = fileName
-		element.ArtifactDir = dirFlag
-		element.ImageDir = imgoutFlag
+		element.ArtifactDir = path.Join(dirFlag, fileName)
+		element.ImageDir = fmt.Sprintf("%s.png", path.Join(imgoutFlag, fileName))
 		artifactArray = append(artifactArray, element)
 	}
 
 	// Generates the binary info
 	dbgPrint("Artifact info extraction.")
 	for i := range artifactArray {
-		fileDir := path.Join(artifactArray[i].ArtifactDir, artifactArray[i].Sha256)
-		fullImageDir := path.Join(artifactArray[i].ImageDir, artifactArray[i].Sha256)
+		fileDir := artifactArray[i].ArtifactDir
+		fullImageDir := artifactArray[i].ImageDir
 
 		// Reads the artifact into a binary array
 		binaryArray, err := ioutil.ReadFile(fileDir)
@@ -112,7 +117,7 @@ func catalog() {
 			generateColorImage(fullImageDir, binaryArray, sectionData)
 		} else {
 			// Not a PE, ELF nor MACH-O
-			err := setArtifactData(&artifactArray[i], "unknown", symbols, libraries)
+			err := setArtifactData(&artifactArray[i], "unknown", nil, nil)
 			checkErr(err)
 			generateImage(fullImageDir, binaryArray)
 		}
@@ -176,7 +181,7 @@ func setArtifactData(artifact *Artifact, format string, symbols, libraries []str
 	artifact.Imports = libraries
 
 	// Read file for hashing
-	fName := path.Join(artifact.ArtifactDir, artifact.Sha256)
+	fName := artifact.ArtifactDir
 	file, err := ioutil.ReadFile(fName)
 	if err != nil {
 		return err

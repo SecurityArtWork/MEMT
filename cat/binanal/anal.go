@@ -25,7 +25,7 @@ func PEAnal(input string) ([]SectionData, []string, []string, error) {
 	// Check for executable type
 	peFmt, err := pe.Open(input)
 	if err != nil {
-		return sectionData, []string{}, []string{}, NotValidPEFileError
+		return sectionData, nil, nil, NotValidPEFileError
 	}
 	defer peFmt.Close()
 
@@ -51,13 +51,13 @@ func PEAnal(input string) ([]SectionData, []string, []string, error) {
 	// Get imported symbols
 	symbolsArr, err := peFmt.ImportedSymbols()
 	if err != nil {
-		return sectionData, []string{}, []string{}, err
+		return sectionData, nil, nil, err
 	}
 
 	// Get imported libraries
 	libraries, err := peFmt.ImportedLibraries()
 	if err != nil {
-		return sectionData, []string{}, []string{}, err
+		return sectionData, nil, nil, err
 	}
 
 	return sectionData, libraries, symbolsArr, nil
