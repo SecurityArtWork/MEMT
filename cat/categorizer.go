@@ -1,7 +1,7 @@
 package main
 
 import (
-	// "encoding/json"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -10,9 +10,9 @@ import (
 	"strings"
 
 	"github.com/dutchcoders/gossdeep"
-	"github.com/hcninja/malpic/binanal"
-	// "github.com/hcninja/malpic/image"
-	// "github.com/securityartwork/hashing"
+	"github.com/securityartwork/cat/binanal"
+	"github.com/securityartwork/cat/image"
+	// "github.com/securityartwork/cat/hashing"
 )
 
 var thresholdFlag int
@@ -20,21 +20,20 @@ var dirFlag, imgoutFlag string
 var verboseFlag bool
 
 type Artifact struct {
-	Ssdeep      string
-	Md5         string
-	Sha1        string
-	Sha256      string
-	Sha512      string
-	Strain      string // if strain nil, else strain hash
-	Format      string
-	Symbols     []string
-	Imports     []string
-	Sections    []string
-	Mutations   []string
-	Photodir    string
-	Artifactdir string
-	// Arch        string
-	// IP          string
+	Ssdeep      string   `json:"ssdeep"`
+	Md5         string   `json:"md5"`
+	Sha1        string   `json:"sha1"`
+	Sha256      string   `json:"sha256"`
+	Sha512      string   `json:"sha512"`
+	Strain      string   `json:"strain"` // if strain nil, else strain hash
+	Format      string   `json:"format"`
+	Symbols     []string `json:"symbols"`
+	Imports     []string `json:"imports"`
+	Sections    []string `json:"sections"`
+	Mutations   []string `json:"mutations"`
+	ImageDir    string   `json:"imageDir"`
+	Artifactdir string   `json:"artifactDir"`
+	Arch        string   `json:"arch"`
 }
 
 func init() {
@@ -65,7 +64,7 @@ func catalog() {
 	dir, err := ioutil.ReadDir(dirFlag)
 	checkErr(err)
 
-	dbgPrint("Calculating SSDEEP")
+	dbgPrint("Calculating SSDEEP.")
 	// Calculate ssdeep for all the files and create Artifact
 	for k := range dir {
 		var element Artifact
@@ -79,33 +78,56 @@ func catalog() {
 		element.Ssdeep = hash
 		element.Sha256 = fileName
 		element.Artifactdir = dirFlag
+		element.ImageDir = imgoutFlag
 		artifactArray = append(artifactArray, element)
 	}
 
 	// Generates the binary info
-	dbgPrint("Artifact info extraction")
+	dbgPrint("Artifact info extraction.")
 	for i := range artifactArray {
 		fileDir := path.Join(artifactArray[i].Artifactdir, artifactArray[i].Sha256)
+		fullImageDir := path.Join(artifactArray[i].ImageDir, artifactArray[i].Sha256)
 
-		// Get binary type
-		// if err := binanal.IsELF(fileDir); err == nil {
-		// 	dbgPrint("File is ELF")
-		// 	artifactArray[i].Format = "elf"
-		// } else if err := binanal.IsMACHO(fileDir); err == nil {
-		// 	dbgPrint("File is MACH-O")
-		// 	artifactArray[i].Format = "macho"
-		// } else if err := binanal.IsPE(fileDir); err == nil {
-		// 	dbgPrint("File is PE")
-		// 	artifactArray[i].Format = "pe"
-		// } else {
-		// 	dbgPrint("File is not binary")
-		// 	artifactArray[i].Format = "unknown"
-		// }
+		// Reads the artifact into a binary array
+		binaryArray, err := ioutil.ReadFile(fileDir)
+		checkErr(err)
 
-		if err := binanal.IsPE(fileDir); err == nil {
+		// TODO: Re-factor
+		// Check and extract data if PE
+		if sectionData, libraries, symbols, err := binanal.PEAnal(fileDir); err == nil {
 			dbgPrint("File is PE")
+			fmt.Println(len(sectionData))
+			fmt.Println(len(libraries))
 			artifactArray[i].Format = "pe"
+			artifactArray[i].Symbols = symbols
+			artifactArray[i].Imports = libraries
+			dbgPrint("Color image!")
+			generateColorImage(fullImageDir, binaryArray, sectionData)
+		} else if sectionData, libraries, symbols, err := binanal.ELFAnal(fileDir); err == nil {
+			// Check and extract data if ELF
+			dbgPrint("File is ELF")
+			fmt.Println(len(sectionData))
+			fmt.Println(len(libraries))
+			fmt.Println(len(symbols))
+			artifactArray[i].Format = "elf"
+			artifactArray[i].Symbols = symbols
+			artifactArray[i].Imports = libraries
+			generateColorImage(fullImageDir, binaryArray, sectionData)
+		} else if sectionData, libraries, symbols, err := binanal.MACHOAnal(fileDir); err == nil {
+			// Check and extract data if Mach-O
+			dbgPrint("File is MACH-O")
+			fmt.Println(len(sectionData))
+			fmt.Println(len(libraries))
+			fmt.Println(len(symbols))
+			artifactArray[i].Format = "macho"
+			artifactArray[i].Symbols = symbols
+			artifactArray[i].Imports = libraries
+			generateColorImage(fullImageDir, binaryArray, sectionData)
+		} else {
+			artifactArray[i].Format = "unknown"
+			generateImage(fullImageDir, binaryArray)
 		}
+
 	}
 
 	// Genetic selector
@@ -148,26 +170,43 @@ func catalog() {
 		artifactArray[i].Mutations = mutsOfStrain
 	}
 
-	// Vusual debug output
-	if verboseFlag {
-		for k := range artifactArray {
-			fmt.Println("===========================")
-			atf := artifactArray[k]
-			fmt.Println("SSDEEP: " + atf.Ssdeep)
-			fmt.Println("Format: " + atf.Format)
-			fmt.Println("SHA: " + atf.Sha256)
-			fmt.Println("Strain: " + atf.Strain)
-			if len(atf.Mutations) > 0 {
-				fmt.Println("Mutations: [")
-				for _, mut := range atf.Mutations {
-					fmt.Printf("\t%s,\n", mut)
-				}
-				fmt.Println("]")
-			} else {
-				fmt.Println("Mutations: []")
-			}
-		}
+	dbgPrint("Genetic classification.")
+
+	fmt.Println("[")
+	for k := range artifactArray {
+		jsonBytes, _ := json.MarshalIndent(artifactArray[k], "", "\t")
+		fmt.Println(string(jsonBytes) + ",")
 	}
+	fmt.Println("]")
+}
+
+// Encodes the binary in a colorful or B/W image
+func generateColorImage(imgout string, binaryArray []byte, sectionData []binanal.SectionData) error {
+	encoder, binImage := image.EncodeColor(binaryArray, sectionData)
+
+	// Write image to file
+	malPict, err := os.Create(imgout + ".png")
+	if err != nil {
+		return err
+	}
+	encoder.Encode(malPict, binImage)
+
+	return nil
+}
+
+// Generates a B/W image file
+func generateImage(imgout string, binaryArray []byte) error {
+	// Encodes the binary in a colorful or B/W image
+	encoder, binImage := image.EncodeBW(binaryArray)
+
+	// Write image to file
+	malPict, err := os.Create(imgout + ".png")
+	if err != nil {
+		return err
+	}
+	encoder.Encode(malPict, binImage)
+
+	return nil
 }
 
 // ===========
