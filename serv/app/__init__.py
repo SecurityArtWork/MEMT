@@ -103,7 +103,8 @@ def register_after_request(app):
 
 
 def register_socketio_tasks():
-    pass
+    from .socketio import feed_connect
+    from .socketio import rtmap_connect
 
 
 def configure_babel(app):
