@@ -10,9 +10,9 @@ import (
 	"strings"
 
 	"github.com/dutchcoders/gossdeep"
-	"github.com/hcninja/malpic/binanal"
-	// "github.com/hcninja/malpic/image"
-	// "github.com/securityartwork/hashing"
+	"github.com/securityartwork/cat/binanal"
+	// "github.com/securityartwork/cat/image"
+	// "github.com/securityartwork/cat/hashing"
 )
 
 var thresholdFlag int
@@ -87,25 +87,43 @@ func catalog() {
 	for i := range artifactArray {
 		fileDir := path.Join(artifactArray[i].Artifactdir, artifactArray[i].Sha256)
 
-		// Get binary type
-		// if err := binanal.IsELF(fileDir); err == nil {
-		// 	dbgPrint("File is ELF")
-		// 	artifactArray[i].Format = "elf"
-		// } else if err := binanal.IsMACHO(fileDir); err == nil {
-		// 	dbgPrint("File is MACH-O")
-		// 	artifactArray[i].Format = "macho"
-		// } else if err := binanal.IsPE(fileDir); err == nil {
-		// 	dbgPrint("File is PE")
-		// 	artifactArray[i].Format = "pe"
-		// } else {
-		// 	dbgPrint("File is not binary")
-		// 	artifactArray[i].Format = "unknown"
-		// }
-
-		if err := binanal.IsPE(fileDir); err == nil {
+		// Check and extract data if PE
+		if sectionData, libraries, symbols, err := binanal.PEAnal(fileDir); err == nil {
+			fmt.Println(len(sectionData))
+			fmt.Println(len(libraries))
+			fmt.Println(len(symbols))
 			dbgPrint("File is PE")
 			artifactArray[i].Format = "pe"
+			continue
+		} else {
+			dbgPrint(err.Error())
 		}
+
+		// Check and extract data if ELF
+		if sectionData, libraries, symbols, err := binanal.ELFAnal(fileDir); err == nil {
+			dbgPrint("File is ELF")
+			fmt.Println(len(sectionData))
+			fmt.Println(len(libraries))
+			fmt.Println(len(symbols))
+			artifactArray[i].Format = "elf"
+			continue
+		} else {
+			dbgPrint(err.Error())
+		}
+
+		// Check and extract data if Mach-O
+		if sectionData, libraries, symbols, err := binanal.MACHOAnal(fileDir); err == nil {
+			dbgPrint("File is MACH-O")
+			fmt.Println(len(sectionData))
+			fmt.Println(len(libraries))
+			fmt.Println(len(symbols))
+			artifactArray[i].Format = "macho"
+			continue
+		} else {
+			dbgPrint(err.Error())
+		}
+
+		artifactArray[i].Format = "unknown"
 	}
 
 	// Genetic selector
