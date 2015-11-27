@@ -12,12 +12,15 @@ Flask-PyMongo==0.4.0
 Flask-Script==2.0.5
 Flask-SocketIO==1.1
 Flask-WTF==0.12
+geoip2==2.2.0
 gunicorn==19.3.0
+ipaddr==2.1.11
 greenlet==0.4.9
 itsdangerous==0.24
 Jinja2==2.8
 kombu==3.0.29
 MarkupSafe==0.23
+maxminddb==1.2.0
 pymongo==3.1.1
 python-engineio==0.7.2
 python-socketio==0.6.1
