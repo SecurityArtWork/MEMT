@@ -108,6 +108,11 @@ padding-top:8px
 margin-left: 1%;
 }
 
-.page-wrapper{
-    margin-top: 10px;
+.row-margin{
+    margin-top: 5%;
+}
+.input-group{
+    position: relative;
+    display: table;
+    border-collapse: separate;
 }
