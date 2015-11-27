@@ -18,12 +18,17 @@
                             </div>
                             <div class="panel-body">
                                 <p>Please, select the file that you want to submit:</p>
-                                <p>
+                                <form id="login-post" method="POST" action="{{ url_for('upload.submit') }}">
+                                    {{ form.csrf_token }}
+                                    <div class="from-group">
+                                        {{ form.malware(id="uploadFile", placeholder="Choose File") }}
 
-                                    <input type="file" class="form-control">
+                                    </div>
                                     <button type="submit" class="btn btn-primary">Submit!</button>
+                                </form>
 
-                                </p>
+
+
                             </div>
                         </div>
                     </div>
