@@ -103,8 +103,8 @@ def register_after_request(app):
 
 
 def register_socketio_tasks():
-    from socketio import feed_connect
-    from socketio import rtmat_connect
+    from .socketio import feed_connect
+    from .socketio import rtmap_connect
 
 
 def configure_babel(app):

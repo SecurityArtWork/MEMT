@@ -9,7 +9,7 @@ from flask_socketio import emit
 
 from app import socketio
 
-from common import get_latest_feeds
+from app.common import get_latest_feeds
 
 namespace = "/feed"
 thread = None
