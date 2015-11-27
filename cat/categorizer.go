@@ -1,6 +1,9 @@
 package main
 
 import (
+	"crypto/md5"
+	"crypto/sha1"
+	"crypto/sha512"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -32,7 +35,7 @@ type Artifact struct {
 	Sections    []string `json:"sections"`
 	Mutations   []string `json:"mutations"`
 	ImageDir    string   `json:"imageDir"`
-	Artifactdir string   `json:"artifactDir"`
+	ArtifactDir string   `json:"artifactDir"`
 	Arch        string   `json:"arch"`
 }
 
@@ -77,7 +80,7 @@ func catalog() {
 
 		element.Ssdeep = hash
 		element.Sha256 = fileName
-		element.Artifactdir = dirFlag
+		element.ArtifactDir = dirFlag
 		element.ImageDir = imgoutFlag
 		artifactArray = append(artifactArray, element)
 	}
@@ -85,52 +88,38 @@ func catalog() {
 	// Generates the binary info
 	dbgPrint("Artifact info extraction.")
 	for i := range artifactArray {
-		fileDir := path.Join(artifactArray[i].Artifactdir, artifactArray[i].Sha256)
+		fileDir := path.Join(artifactArray[i].ArtifactDir, artifactArray[i].Sha256)
 		fullImageDir := path.Join(artifactArray[i].ImageDir, artifactArray[i].Sha256)
 
 		// Reads the artifact into a binary array
 		binaryArray, err := ioutil.ReadFile(fileDir)
 		checkErr(err)
 
-		// TODO: Re-factor
-		// Check and extract data if PE
 		if sectionData, libraries, symbols, err := binanal.PEAnal(fileDir); err == nil {
-			dbgPrint("File is PE")
-			fmt.Println(len(sectionData))
-			fmt.Println(len(libraries))
-			artifactArray[i].Format = "pe"
-			artifactArray[i].Symbols = symbols
-			artifactArray[i].Imports = libraries
-			dbgPrint("Color image!")
+			// Check and extract data if PE
+			err := setArtifactData(&artifactArray[i], "pe", symbols, libraries)
+			checkErr(err)
 			generateColorImage(fullImageDir, binaryArray, sectionData)
 		} else if sectionData, libraries, symbols, err := binanal.ELFAnal(fileDir); err == nil {
 			// Check and extract data if ELF
-			dbgPrint("File is ELF")
-			fmt.Println(len(sectionData))
-			fmt.Println(len(libraries))
-			fmt.Println(len(symbols))
-			artifactArray[i].Format = "elf"
-			artifactArray[i].Symbols = symbols
-			artifactArray[i].Imports = libraries
+			err := setArtifactData(&artifactArray[i], "elf", symbols, libraries)
+			checkErr(err)
 			generateColorImage(fullImageDir, binaryArray, sectionData)
 		} else if sectionData, libraries, symbols, err := binanal.MACHOAnal(fileDir); err == nil {
 			// Check and extract data if Mach-O
-			dbgPrint("File is MACH-O")
-			fmt.Println(len(sectionData))
-			fmt.Println(len(libraries))
-			fmt.Println(len(symbols))
-			artifactArray[i].Format = "macho"
-			artifactArray[i].Symbols = symbols
-			artifactArray[i].Imports = libraries
+			err := setArtifactData(&artifactArray[i], "macho", symbols, libraries)
+			checkErr(err)
 			generateColorImage(fullImageDir, binaryArray, sectionData)
 		} else {
-			artifactArray[i].Format = "unknown"
+			// Not a PE, ELF nor MACH-O
+			err := setArtifactData(&artifactArray[i], "unknown", symbols, libraries)
+			checkErr(err)
 			generateImage(fullImageDir, binaryArray)
 		}
-
 	}
 
 	// Genetic selector
+	dbgPrint("Genetic classification.")
 	for i := range artifactArray {
 		var mutsOfStrain []string
 		atfNameA := artifactArray[i].Sha256
@@ -170,14 +159,49 @@ func catalog() {
 		artifactArray[i].Mutations = mutsOfStrain
 	}
 
-	dbgPrint("Genetic classification.")
-
+	// Prints the formatted JSON
 	fmt.Println("[")
 	for k := range artifactArray {
 		jsonBytes, _ := json.MarshalIndent(artifactArray[k], "", "\t")
 		fmt.Println(string(jsonBytes) + ",")
 	}
 	fmt.Println("]")
+}
+
+// Sets the artifact fields
+func setArtifactData(artifact *Artifact, format string, symbols, libraries []string) error {
+	// Format fields
+	artifact.Format = format
+	artifact.Symbols = symbols
+	artifact.Imports = libraries
+
+	// Read file for hashing
+	fName := path.Join(artifact.ArtifactDir, artifact.Sha256)
+	file, err := ioutil.ReadFile(fName)
+	if err != nil {
+		return err
+	}
+
+	// Copies file to md5 hash array
+	md5hasher := md5.New()
+	md5hasher.Write(file)
+	md5hash := md5hasher.Sum(nil)
+
+	// Copies file to sha1 hash array
+	sha1hasher := sha1.New()
+	sha1hasher.Write(file)
+	sha1hash := sha1hasher.Sum(nil)
+
+	// Copies file to sha512 hash array
+	sha512hasher := sha512.New()
+	sha512hasher.Write(file)
+	sha512hash := sha512hasher.Sum(nil)
+
+	artifact.Md5 = fmt.Sprintf("%x", md5hash)
+	artifact.Sha1 = fmt.Sprintf("%x", sha1hash)
+	artifact.Sha512 = fmt.Sprintf("%x", sha512hash)
+
+	return nil
 }
 
 // Encodes the binary in a colorful or B/W image
