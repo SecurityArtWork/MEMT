@@ -14,10 +14,12 @@ def get_common_info():
     total_assets = assets.count()
     total_strains = assets.find({"strain": ""}).count()
     last_countries = []
-    for last_country in assets.find({"$project": {"geo": 1, "geo_ip": 1}}).limit(app.config["RT_LAST_COUNTRIES"]):
+    query = assets.find({}, {"ipMeta.iso_code": 1, "ipMeta.country": 1, "ipMeta.city": 1, "ipMeta.geo": 1}).limit(app.config["RT_LAST_COUNTRIES"])
+    for last_country in query:
         last_countries.append(last_country)
     last_news = []
-    for last_new in feeds.find().sort([("$natural", 1)]).limit(app.config["FEED_LAST_NEWS"]):
+    query = feeds.find().sort([("$natural", 1)]).limit(app.config["FEED_LAST_NEWS"])
+    for last_new in query:
         last_news.append(last_new)
     return {"total_assets": total_assets,
             "total_strains": total_strains,

@@ -17,6 +17,6 @@ def index():
     info = get_common_info()
     return render_template('index/index.html',
                            totalAssets=info["total_assets"],
-                           totalStrain=info["total_strain"],
+                           totalStrain=info["total_strains"],
                            lastNews=info["last_news"],
                            lastCountries=info["last_countries"])
