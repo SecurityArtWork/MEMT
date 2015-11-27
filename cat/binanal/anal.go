@@ -11,33 +11,16 @@ var NotValidPEFileError = errors.New("Not a valid PE file")
 var NotValidELFFileError = errors.New("Not a valid ELF file")
 var NotValidMACHOFileError = errors.New("Not a valid MACHO file")
 
-type PESectionData struct {
-	Name           string
-	Size           int
-	Offset         int
-	End            int
-	VirtualSize    int
-	VirtualAddress int
-}
-
-type MACHOSectionData struct {
+type SectionData struct {
 	Name   string
 	Size   int
 	Offset int
 	End    int
 }
 
-type ELFSectionData struct {
-	Name   string
-	Size   int
-	Offset int
-	End    int
-}
-
-func PEAnal(input string) ([]PESectionData, []string, []string, error) {
+func PEAnal(input string) ([]SectionData, []string, []string, error) {
 	// An array of arrays for storing the section offsets
-	var sectionData []PESectionData
-	var symbolsArr []string
+	var sectionData []SectionData
 
 	// Check for executable type
 	peFmt, err := pe.Open(input)
@@ -54,31 +37,21 @@ func PEAnal(input string) ([]PESectionData, []string, []string, error) {
 		secSize := sec.Size
 		secOffset := sec.Offset + 1
 		secEnd := secOffset + secSize - 1
-		secVSize := sec.VirtualSize
-		secVAddr := sec.VirtualAddress
 
-		sd := PESectionData{
-			Name:           secName,
-			Size:           int(secSize),
-			Offset:         int(secOffset),
-			End:            int(secEnd),
-			VirtualSize:    int(secVSize),
-			VirtualAddress: int(secVAddr),
+		sd := SectionData{
+			Name:   secName,
+			Size:   int(secSize),
+			Offset: int(secOffset),
+			End:    int(secEnd),
 		}
 
 		sectionData = append(sectionData, sd)
 	}
 
-	// Extract symbols
-	numberOfSymbols := peFmt.NumberOfSymbols
-	if numberOfSymbols > 0 {
-		symbols := peFmt.Symbols
-
-		for k := range symbols {
-			sym := symbols[k]
-			symName := sym.Name
-			symbolsArr = append(symbolsArr, symName)
-		}
+	// Get imported symbols
+	symbolsArr, err := peFmt.ImportedSymbols()
+	if err != nil {
+		return sectionData, []string{}, []string{}, err
 	}
 
 	// Get imported libraries
@@ -90,9 +63,9 @@ func PEAnal(input string) ([]PESectionData, []string, []string, error) {
 	return sectionData, libraries, symbolsArr, nil
 }
 
-func MACHOAnal(input string) ([]MACHOSectionData, []string, []string, error) {
+func MACHOAnal(input string) ([]SectionData, []string, []string, error) {
 	// An array of arrays for storing the section offsets
-	var sectionData []MACHOSectionData
+	var sectionData []SectionData
 
 	// Check for executable type
 	machoFmt, err := macho.Open(input)
@@ -110,7 +83,7 @@ func MACHOAnal(input string) ([]MACHOSectionData, []string, []string, error) {
 		secOffset := sec.Offset + 1
 		secEnd := int(secOffset) + int(secSize) - 1
 
-		sd := MACHOSectionData{
+		sd := SectionData{
 			Name:   secName,
 			Size:   int(secSize),
 			Offset: int(secOffset),
@@ -121,7 +94,7 @@ func MACHOAnal(input string) ([]MACHOSectionData, []string, []string, error) {
 	}
 
 	// Get imported symbols
-	symbolsArr, err := machoFmt.ImportedLibraries()
+	symbolsArr, err := machoFmt.ImportedSymbols()
 	if err != nil {
 		return sectionData, []string{}, []string{}, err
 	}
@@ -135,9 +108,10 @@ func MACHOAnal(input string) ([]MACHOSectionData, []string, []string, error) {
 	return sectionData, libraries, symbolsArr, nil
 }
 
-func ELFAnal(input string) ([]ELFSectionData, []string, []string, error) {
+func ELFAnal(input string) ([]SectionData, []string, []string, error) {
 	// An array of arrays for storing the section offsets
-	var sectionData []ELFSectionData
+	var sectionData []SectionData
+	var symbolsArr []string
 
 	// Check for executable type
 	elfFmt, err := elf.Open(input)
@@ -153,9 +127,9 @@ func ELFAnal(input string) ([]ELFSectionData, []string, []string, error) {
 		secName := sec.Name
 		secSize := sec.Size
 		secOffset := sec.Offset + 1
-		secEnd := int(secOffset) + int(secSize) - 1
+		secEnd := secOffset + secSize - 1
 
-		sd := ELFSectionData{
+		sd := SectionData{
 			Name:   secName,
 			Size:   int(secSize),
 			Offset: int(secOffset),
@@ -166,9 +140,15 @@ func ELFAnal(input string) ([]ELFSectionData, []string, []string, error) {
 	}
 
 	// Get imported symbols
-	symbolsArr, err := elfFmt.ImportedLibraries()
+	symbols, err := elfFmt.ImportedSymbols()
 	if err != nil {
 		return sectionData, []string{}, []string{}, err
+	}
+
+	if len(symbols) > 0 {
+		for k := range symbols {
+			symbolsArr = append(symbolsArr, symbols[k].Name)
+		}
 	}
 
 	// Get imported libraries
