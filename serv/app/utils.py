@@ -2,6 +2,7 @@
 from __future__ import print_function, absolute_import
 
 import re
+
 from werkzeug.routing import BaseConverter
 from werkzeug.routing import ValidationError
 
