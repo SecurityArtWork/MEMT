@@ -107,3 +107,12 @@ padding-top:8px
 .menu{
 margin-left: 1%;
 }
+
+.row-margin{
+    margin-top: 5%;
+}
+.input-group{
+    position: relative;
+    display: table;
+    border-collapse: separate;
+}

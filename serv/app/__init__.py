@@ -27,6 +27,7 @@ from .pages.list import bp as listbp
 from .pages.detail import bp as detail
 from .pages.faq import bp as faq
 from .pages.download import bp as download
+from .pages.upload import bp as upload
 
 
 def create_app(config_name):
@@ -74,6 +75,7 @@ def register_blueprints(app):
     app.register_blueprint(detail)
     app.register_blueprint(faq)
     app.register_blueprint(download)
+    app.register_blueprint(upload)
     GraphView.register(app)
     MalwareView.register(app)
     return None
