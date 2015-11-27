@@ -28,3 +28,4 @@ celery = Celery(__name__,
 if not os.environ.get('PRODUCTION'):
     from flask_debugtoolbar import DebugToolbarExtension
     toolbar = DebugToolbarExtension()
+
