@@ -9,7 +9,7 @@ from flask_socketio import emit
 
 from app import socketio
 
-from common import get_latest_feeds
+from app.common import get_latest_feeds
 
 namespace = "/feed"
 thread = None
@@ -18,7 +18,7 @@ thread = None
 def connect():
     data = get_latest_feeds()
     emit("connect", data, namespace=namespace)
-    keep_updating()
+    #keep_updating()
 
 
 def background_thread():
