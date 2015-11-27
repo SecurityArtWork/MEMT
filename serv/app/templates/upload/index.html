@@ -1,0 +1,38 @@
+{% extends 'base/base.html' %}
+
+{% block head %}
+    {{ super() }}
+    {% include "upload/js.html" %}
+    {% include "upload/css.html" %}
+{% endblock %}
+
+{% block body %}
+    {{super()}}
+    <div id="page-wrapper">
+            <div class="container-fluid">
+                <div class="row row-margin">
+                    <div class="col-lg-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title"><i class="fa fa-cloud-upload fa-fw"></i>Upload Sample</h3>
+                            </div>
+                            <div class="panel-body">
+                                <p>Please, select the file that you want to submit:</p>
+                                <form id="login-post" method="POST" action="{{ url_for('upload.submit') }}">
+                                    {{ form.csrf_token }}
+                                    <div class="from-group">
+                                        {{ form.malware(id="uploadFile", placeholder="Choose File") }}
+
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Submit!</button>
+                                </form>
+
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+{% endblock %}
