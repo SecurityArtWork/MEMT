@@ -16,8 +16,10 @@ class GraphView(FlaskView):
     def rt(self, qty=100):
         pass
 
+    @route('/geo/<sha256:hash>')
     def geo(self, hash):
         pass
 
+    @route('/spread/<sha256:hash>')
     def spread(self, hash):
         pass
