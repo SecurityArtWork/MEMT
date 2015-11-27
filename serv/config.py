@@ -46,6 +46,8 @@ class Config(object):
     RT_LAST_COUNTRIES = 100
     FEED_LAST_NEWS = 5
 
+    UPLOAD_FOLDER = os.path.join(BASEDIR, "..", "..", "aux", "uploads")
+
     MEMT_SLOW_DB_QUERY_TIME = 0.5
 
     LANGUAGES = {
