@@ -15,14 +15,14 @@
 <!-- Top Menu Items -->
 <div id="navbar" class="navbar-collapse collapse">
     <ul class="nav navbar-nav menu">
-        <li class="active">
+        <li>
             <a href="index/index.html">
                 <i class="fa fa-fw fa-dashboard"></i>
                 Index
             </a>
         </li>
         <li>
-            <a href="index.html">
+            <a href="{{ url_for('upload.index') }}">
                 <i class="fa fa-fw fa-cloud-upload"></i>
                 Upload Sample
             </a>
