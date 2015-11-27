@@ -28,15 +28,15 @@
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-4">
-                        <div class="panel panel-green">
+                        <div class="panel panel-primary">
                             <div class="panel-heading">
                                 <div class="row">
                                     <div class="col-xs-3">
                                         <i class="fa fa-tasks fa-5x"></i>
                                     </div>
                                     <div class="col-xs-9 text-right">
-                                        <div class="huge">200k</div>
-                                        <div>Total samples</div>
+                                        <div class="huge">{{ totalAssets }}</div>
+                                        <div>Total Samples</div>
                                     </div>
                                 </div>
                             </div>
@@ -51,11 +51,11 @@
 
                                     <div class="col-xs-3">
                                         <!--<i class="fa fa-comments fa-5x"></i>-->
-                                        <img style="width:50px;" src="dna.png" alt="">
+                                        <img style="width:50px;" src="{{ url_for('static', filename='img/dna.png') }}" alt="">
                                     </div>
                                     <div class="col-xs-9 text-right">
-                                        <div class="huge">26</div>
-                                        <div>strains</div>
+                                        <div class="huge">{{ totalStrain }}</div>
+                                        <div>Strains</div>
                                     </div>
                                 </div>
                             </div>

@@ -97,4 +97,13 @@ margin-left: -25px;
     overflow-y: scroll;
     max-height: 200px;
     width: 100%;
-    }
+}
+.search-box{
+float:right; width: 20%;
+margin-right: 5%;
+padding-top:8px
+}
+
+.menu{
+margin-left: 1%;
+}
