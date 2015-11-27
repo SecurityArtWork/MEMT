@@ -20,20 +20,20 @@ var dirFlag, imgoutFlag string
 var verboseFlag bool
 
 type Artifact struct {
-	Ssdeep      string   `json:ssdeep`
-	Md5         string   `json:md5`
-	Sha1        string   `json:sha1`
-	Sha256      string   `json:sha256`
-	Sha512      string   `json:sha512`
-	Strain      string   `json:strain` // if strain nil, else strain hash
-	Format      string   `json:format`
-	Symbols     []string `json:symbols`
-	Imports     []string `json:imports`
-	Sections    []string `json:sections`
-	Mutations   []string `json:mutations`
-	ImageDir    string   `json:imageDir`
-	Artifactdir string   `json:artifactDir`
-	Arch        string   `json:arch`
+	Ssdeep      string   `json:"ssdeep"`
+	Md5         string   `json:"md5"`
+	Sha1        string   `json:"sha1"`
+	Sha256      string   `json:"sha256"`
+	Sha512      string   `json:"sha512"`
+	Strain      string   `json:"strain"` // if strain nil, else strain hash
+	Format      string   `json:"format"`
+	Symbols     []string `json:"symbols"`
+	Imports     []string `json:"imports"`
+	Sections    []string `json:"sections"`
+	Mutations   []string `json:"mutations"`
+	ImageDir    string   `json:"imageDir"`
+	Artifactdir string   `json:"artifactDir"`
+	Arch        string   `json:"arch"`
 }
 
 func init() {

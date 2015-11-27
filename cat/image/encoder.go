@@ -10,16 +10,16 @@ import (
 	"github.com/securityartwork/cat/binanal"
 )
 
-// Encodes data to monochromatic-scale PNG file
+// Encodes data to monochromatic-color-scale PNG file
 func EncodeColor(file []byte, secDat []binanal.SectionData) (png.Encoder, *image.RGBA) {
 	fSize := len(file)
 	min := 0
 	max := int(math.Sqrt(float64(fSize)))
 	binIndex := 0
 
-	fmt.Printf("[+] File size: %d\n", fSize)
-	fmt.Printf("[+] Max vector size: %d\n", max)
-	fmt.Printf("[+] Total vectors: %d\n", fSize/max)
+	// fmt.Printf("[+] File size: %d\n", fSize)
+	// fmt.Printf("[+] Max vector size: %d\n", max)
+	// fmt.Printf("[+] Total vectors: %d\n", fSize/max)
 
 	binImage := image.NewRGBA(
 		image.Rect(min, min, max, max),
@@ -27,28 +27,17 @@ func EncodeColor(file []byte, secDat []binanal.SectionData) (png.Encoder, *image
 
 	var c color.Color
 	sectionNumber := 0
-	fmt.Print("> ")
-	fmt.Println(sectionNumber)
 
 	// Fill the image with the file bytes
 	for y := min; y < max; y++ {
 		for x := min; x < max; x++ {
-			idxA := false
-			idxB := false
-			lim := false
-
-			// Check if binary has sections
-			if sectionNumber > 1 {
-				fmt.Print("> ")
-				fmt.Println(secDat[sectionNumber])
-				// Set section color delimiters
-				idxA = binIndex > secDat[sectionNumber].Offset
-				idxB = binIndex < secDat[sectionNumber].End
-				lim = sectionNumber < len(secDat)-1
-			}
+			// Set section color delimiters
+			idxA := binIndex > secDat[sectionNumber].Offset
+			idxB := binIndex < secDat[sectionNumber].End
+			lim := sectionNumber < len(secDat)-1
 
 			// Increase section number
-			if idxB && lim {
+			if binIndex > secDat[sectionNumber].End && lim {
 				sectionNumber++
 			}
 
