@@ -92,45 +92,27 @@ func catalog() {
 		binaryArray, err := ioutil.ReadFile(fileDir)
 		checkErr(err)
 
-		// TODO: Re-factor
-		// Check and extract data if PE
 		if sectionData, libraries, symbols, err := binanal.PEAnal(fileDir); err == nil {
-			dbgPrint("File is PE")
-			fmt.Println(len(sectionData))
-			fmt.Println(len(libraries))
-			artifactArray[i].Format = "pe"
-			artifactArray[i].Symbols = symbols
-			artifactArray[i].Imports = libraries
-			dbgPrint("Color image!")
+			// Check and extract data if PE
+			setArtifactData(&artifactArray[i], "pe", symbols, libraries)
 			generateColorImage(fullImageDir, binaryArray, sectionData)
 		} else if sectionData, libraries, symbols, err := binanal.ELFAnal(fileDir); err == nil {
 			// Check and extract data if ELF
-			dbgPrint("File is ELF")
-			fmt.Println(len(sectionData))
-			fmt.Println(len(libraries))
-			fmt.Println(len(symbols))
-			artifactArray[i].Format = "elf"
-			artifactArray[i].Symbols = symbols
-			artifactArray[i].Imports = libraries
+			setArtifactData(&artifactArray[i], "elf", symbols, libraries)
 			generateColorImage(fullImageDir, binaryArray, sectionData)
 		} else if sectionData, libraries, symbols, err := binanal.MACHOAnal(fileDir); err == nil {
 			// Check and extract data if Mach-O
-			dbgPrint("File is MACH-O")
-			fmt.Println(len(sectionData))
-			fmt.Println(len(libraries))
-			fmt.Println(len(symbols))
-			artifactArray[i].Format = "macho"
-			artifactArray[i].Symbols = symbols
-			artifactArray[i].Imports = libraries
+			setArtifactData(&artifactArray[i], "macho", symbols, libraries)
 			generateColorImage(fullImageDir, binaryArray, sectionData)
 		} else {
-			artifactArray[i].Format = "unknown"
+			// Not a PE, ELF nor MACH-O
+			setArtifactData(&artifactArray[i], "unknown", symbols, libraries)
 			generateImage(fullImageDir, binaryArray)
 		}
-
 	}
 
 	// Genetic selector
+	dbgPrint("Genetic classification.")
 	for i := range artifactArray {
 		var mutsOfStrain []string
 		atfNameA := artifactArray[i].Sha256
@@ -170,14 +152,26 @@ func catalog() {
 		artifactArray[i].Mutations = mutsOfStrain
 	}
 
-	dbgPrint("Genetic classification.")
-
+	// Prints the formatted JSON
 	fmt.Println("[")
 	for k := range artifactArray {
 		jsonBytes, _ := json.MarshalIndent(artifactArray[k], "", "\t")
 		fmt.Println(string(jsonBytes) + ",")
 	}
 	fmt.Println("]")
+}
+
+// Sets the artifact fields
+func setArtifactData(artifact *Artifact, format string, symbols, libraries []string) {
+	// Format fields
+	artifact.Format = format
+	artifact.Symbols = symbols
+	artifact.Imports = libraries
+
+	// Set hashes
+	artifact.Md5 = "md5"
+	artifact.Sha1 = "sha1"
+	artifact.Sha512 = "sha512"
 }
 
 // Encodes the binary in a colorful or B/W image

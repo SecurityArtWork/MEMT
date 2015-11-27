@@ -1,7 +1,6 @@
 package image
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 	"image/png"
@@ -16,10 +15,6 @@ func EncodeColor(file []byte, secDat []binanal.SectionData) (png.Encoder, *image
 	min := 0
 	max := int(math.Sqrt(float64(fSize)))
 	binIndex := 0
-
-	// fmt.Printf("[+] File size: %d\n", fSize)
-	// fmt.Printf("[+] Max vector size: %d\n", max)
-	// fmt.Printf("[+] Total vectors: %d\n", fSize/max)
 
 	binImage := image.NewRGBA(
 		image.Rect(min, min, max, max),
@@ -75,9 +70,9 @@ func EncodeBW(file []byte) (png.Encoder, *image.RGBA) {
 	max := int(math.Sqrt(float64(fSize)))
 	binIndex := 0
 
-	fmt.Printf("[+] File size: %d\n", fSize)
-	fmt.Printf("[+] Max vector size: %d\n", max)
-	fmt.Printf("[+] Total vectors: %d\n", fSize/max)
+	// fmt.Printf("[+] File size: %d\n", fSize)
+	// fmt.Printf("[+] Max vector size: %d\n", max)
+	// fmt.Printf("[+] Total vectors: %d\n", fSize/max)
 
 	binImage := image.NewRGBA(
 		image.Rect(min, min, max, max),
