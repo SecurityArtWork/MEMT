@@ -18,7 +18,7 @@
                             </div>
                             <div class="panel-body">
                                 <p>Please, select the file that you want to submit:</p>
-                                <form id="login-post" enctype="multipart/form-data"method="POST" action="{{ url_for('upload.submit') }}">
+                                <form id="login-post" enctype="multipart/form-data" method="POST" action="{{ url_for('upload.submit') }}">
                                     {{ form.csrf_token }}
                                     <div class="from-group">
                                         {{ form.malware(id="uploadFile", placeholder="Choose File") }}

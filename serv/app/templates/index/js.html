@@ -100,33 +100,6 @@
                 }
 
 
-
-                // the following code uses circle radius to show the difference
-                /*
-                for (var i = 0; i < mapData.length; i++) {
-                    var dataItem = mapData[i];
-                    var value = dataItem.value;
-                    // calculate size of a bubble
-                    var size = (value - min) / (max - min) * (maxBulletSize - minBulletSize) + minBulletSize;
-                    if (size < minBulletSize) {
-                        size = minBulletSize;
-                    }
-                    var id = dataItem.code;
-
-                    dataProvider.images.push({
-                        type: "circle",
-                        width: size,
-                        height: size,
-                        color: dataItem.color,
-                        longitude: latlong[id].longitude,
-                        latitude: latlong[id].latitude,
-                        title: dataItem.name,
-                        value: value
-                    });
-                }*/
-
-
-
                 map.dataProvider = dataProvider;
 
                 map.write("mapdiv");
