@@ -24,16 +24,16 @@ def get_common_info():
 
 
 def get_latest_feeds(limit=5):
-    feeds = mongo.db.feeds
     last_news = []
+    feeds = mongo.db.feeds
     query = feeds.find().sort([("$natural", 1)]).limit(limit)
     for last_new in query:
         last_news.append(last_new)
     return last_news
 
 def get_latest_geo(limit=100):
-    assets = mongo.db.assets
     last_countries = []
+    assets = mongo.db.assets
     query = assets.find({}, {"ipMeta.iso_code": 1,
                              "ipMeta.country": 1,
                              "ipMeta.city": 1,

@@ -9,6 +9,6 @@ from flask import Blueprint, render_template
 bp = Blueprint('detail', __name__, url_prefix='/details')
 
 
-@bp.route('', methods=['GET'])
-def index():
+@bp.route('/<sha256:hash>', methods=['GET'])
+def index(hash):
     return render_template('detail/index.html')

@@ -7,6 +7,8 @@ from threading import Thread
 from flask import request, session
 from flask_socketio import emit
 
+from bson.json_util import dumps
+
 from app import socketio
 
 from app.common import get_latest_geo
@@ -17,15 +19,15 @@ thread = None
 @socketio.on('connect', namespace=namespace)
 def connect():
     data = get_latest_geo()
-    emit("connect", data, namespace=namespace)
-    keep_updating()
+    emit("connect", dumps(data), namespace=namespace)
+    #keep_updating()
 
 
 def background_thread():
     while True:
         time.sleep(10)
         data = get_latest_geo()
-        emit('update', data, namespace=namespace)
+        emit('update', dumps(data), namespace=namespace)
 
 def keep_updating():
     global thread
@@ -33,3 +35,11 @@ def keep_updating():
         thread = Thread(target=background_thread)
         thread.daemon = True
         thread.start()
+
+
+
+
+
+
+
+
