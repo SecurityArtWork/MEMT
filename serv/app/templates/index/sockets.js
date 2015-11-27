@@ -7,13 +7,17 @@
             var rtsocket = io.connect('http://' + document.domain + ':' + location.port + RTMapNamespace);
 
             // New attack.
-            socket.on('update', function(data) {
+            rtsocket.on('update', function(data) {
 
             });
 
             // event handler for new connections
-            socket.on('connect', function(data) {
+            rtsocket.on('connect', function(data) {
 
             });
         });
+
+        function parseData(data){
+
+        };
 </script>
