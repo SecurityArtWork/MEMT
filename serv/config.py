@@ -40,6 +40,14 @@ class Config(object):
     MONGO_HOST = 'localhost'
     MONGO_PORT = '27017'
 
+    MAXMAIN_DB_COUNTRIES = "/opt/dbs/GeoLite2-Country.mmdb"
+    MAXMAIN_DB_CITIES = "/opt/dbs/GeoLite2-City.mmdb"
+
+    RT_LAST_COUNTRIES = 100
+    FEED_LAST_NEWS = 5
+
+    UPLOAD_FOLDER = os.path.join(BASEDIR, "..", "..", "aux", "uploads")
+
     MEMT_SLOW_DB_QUERY_TIME = 0.5
 
     LANGUAGES = {
@@ -56,7 +64,7 @@ class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
         'sqlite:///' + os.path.join(BASEDIR, 'data-dev.sqlite')
-    MONGO_DBNAME = 'artefacts'
+    MONGO_DBNAME = 'memt'
     WTF_CSRF_ENABLED = False
 
 
@@ -64,14 +72,14 @@ class TestingConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or \
         'sqlite:///' + os.path.join(BASEDIR, 'data-test.sqlite')
-    MONGO_DBNAME = 'artefacts'
+    MONGO_DBNAME = 'memt'
     WTF_CSRF_ENABLED = False
 
 
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'sqlite:///' + os.path.join(BASEDIR, 'data.sqlite')
-    MONGO_DBNAME = 'artefacts'
+    MONGO_DBNAME = 'memt'
 
     @classmethod
     def init_app(cls, app):

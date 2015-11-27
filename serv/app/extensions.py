@@ -16,7 +16,8 @@ from flask_socketio import SocketIO
 
 # Flask extensions
 babel = Babel()
-mongo_assets = PyMongo()
+mongo = PyMongo()
+
 socketio = SocketIO()
 
 # Celery config

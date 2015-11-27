@@ -10,9 +10,11 @@ from flask import Flask
 from flask import render_template
 from flask import request
 
+from .utils import sha256Converter
+
 from config import config, Config
 from .extensions import babel
-from .extensions import mongo_assets
+from .extensions import mongo
 from .extensions import socketio
 from .extensions import celery
 
@@ -25,6 +27,7 @@ from .pages.list import bp as listbp
 from .pages.detail import bp as detail
 from .pages.faq import bp as faq
 from .pages.download import bp as download
+from .pages.upload import bp as upload
 
 
 def create_app(config_name):
@@ -36,6 +39,8 @@ def create_app(config_name):
 
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
+
+    register_utils(app)
 
     register_extensions(app)
     register_blueprints(app)
@@ -49,7 +54,7 @@ def create_app(config_name):
 def register_extensions(app):
     babel.init_app(app)
     configure_babel(app)
-    mongo_assets.init_app(app, config_prefix='MONGO')
+    mongo.init_app(app, config_prefix='MONGO')
 
     # Setting socketIO in async mode
     socketio.init_app(app, async_mode='eventlet', engineio_logger=True)
@@ -70,10 +75,13 @@ def register_blueprints(app):
     app.register_blueprint(detail)
     app.register_blueprint(faq)
     app.register_blueprint(download)
+    app.register_blueprint(upload)
     GraphView.register(app)
     MalwareView.register(app)
     return None
 
+def register_utils(app):
+    app.url_map.converters['sha256'] = sha256Converter
 
 def register_errorhandlers(app):
     def render_error(error):

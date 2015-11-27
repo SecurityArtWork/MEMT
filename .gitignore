@@ -9,7 +9,7 @@ aux/
 ## Mac OS section
 #######################
 
-.DS_Store
+**/.DS_Store
 
 #######################
 ## Sublime section
