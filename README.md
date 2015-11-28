@@ -43,7 +43,7 @@ As said before MEMT is a big platform so MEMT is built upon different modules or
 ## Installation
 You can find the installation files (README.md) inside root each component.
 
-- [Web server](srev/README.md)
+- [Web server](serv/README.md)
 - [Cli](cli/README.md)
 - [Categorizer](cat/README.md)
 - [Analyzer](anal/README.md)
