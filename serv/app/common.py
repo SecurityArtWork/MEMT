@@ -12,7 +12,6 @@ def get_common_info():
     """This function has to be called from inside a  request, beacause it uses a app object.
     """
     assets = mongo.db.assets
-    feeds = mongo.db.feeds
     total_assets = assets.count()
     total_strains = assets.find({"strain": ""}).count()
     last_countries = get_latest_geo(app.config["RT_LAST_COUNTRIES"])
