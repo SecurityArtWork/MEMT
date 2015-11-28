@@ -18,7 +18,7 @@ thread = None
 def connect():
     data = get_latest_feeds()
     emit("connect", data, namespace=namespace)
-    keep_updating()
+    #keep_updating()
 
 
 def background_thread():
