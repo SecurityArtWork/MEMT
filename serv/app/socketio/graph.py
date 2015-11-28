@@ -35,7 +35,3 @@ def keep_updating():
         thread = Thread(target=background_thread)
         thread.daemon = True
         thread.start()
-
-
-
-
