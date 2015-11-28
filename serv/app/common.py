@@ -7,6 +7,9 @@ from flask import current_app as app
 
 from app.extensions import mongo
 
+rt_feed_namespace = "/feed"
+rt_map_namespace = "/rtmap"
+
 
 def get_common_info():
     """This function has to be called from inside a  request, beacause it uses a app object.
