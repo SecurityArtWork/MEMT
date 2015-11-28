@@ -20,9 +20,9 @@ from .extensions import socketio
 
 from .api.v0.graph import GraphView
 from .api.v0.malware import MalwareView
+from .api.v0.search import SearchView
 
 from .pages.index import bp as index
-from .pages.search import bp as search
 from .pages.list import bp as listbp
 from .pages.detail import bp as detail
 from .pages.faq import bp as faq
@@ -70,7 +70,6 @@ def register_extensions(app):
 
 def register_blueprints(app):
     app.register_blueprint(index)
-    app.register_blueprint(search)
     app.register_blueprint(listbp)
     app.register_blueprint(detail)
     app.register_blueprint(faq)
@@ -78,6 +77,7 @@ def register_blueprints(app):
     app.register_blueprint(upload)
     GraphView.register(app)
     MalwareView.register(app)
+    SearchView.register(app)
     return None
 
 def register_utils(app):
