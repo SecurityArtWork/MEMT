@@ -29,11 +29,13 @@ import (
 	"log"
 	"net/http"
 	"os"
-	// "path"
+	"path"
 
-	"github.com/securityartwork/cat/binanal"
-	// "github.com/securityartwork/cat/image"
 	"github.com/securityartwork/anal/hashing"
+	"github.com/securityartwork/cat/binanal"
+	"github.com/securityartwork/cat/image"
+	// "gopkg.in/mgo.v2"
+	// "gopkg.in/mgo.v2/bson"
 )
 
 const (
@@ -154,22 +156,26 @@ func analysisEndpoint(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	// Recover path of the artifact to analyze
-	path := at.Path
+	artPath := at.Path
 
 	// Generate hashes
-	if err := generateHashes(&artifact, path); err != nil {
+	if err := generateHashes(&artifact, artPath); err != nil {
 		sendJSONError(rw, http.StatusInternalServerError, err)
 		return
 	}
 
+	// Set file pointers
+	artifact.ArtifactDir = path.Join(binDstFlag, artifact.Sha256)
+	artifact.ImageDir = path.Join(imgDstFlag, artifact.Sha256+".png")
+
 	// Extract binary info
-	if err := binaryData(&artifact, path); err != nil {
+	if err := binaryData(&artifact, artPath); err != nil {
 		sendJSONError(rw, http.StatusInternalServerError, err)
 		return
 	}
 
 	// TODO: Move file to binary repository
-	if err := relocate(&artifact, path); err != nil {
+	if err := relocate(&artifact, artPath); err != nil {
 		sendJSONError(rw, http.StatusInternalServerError, err)
 		return
 	}
@@ -238,30 +244,38 @@ func generateHashes(artifact *Artifact, path string) error {
 }
 
 // Extracts the info from the binary
-func binaryData(artifact *Artifact, path string) error {
-	if sectionData, libraries, symbols, err := binanal.PEAnal(path); err == nil {
+func binaryData(artifact *Artifact, artPath string) error {
+	if sectionData, libraries, symbols, err := binanal.PEAnal(artPath); err == nil {
 		artifact.Format = "pe"
 		artifact.Imports = libraries
 		artifact.Symbols = symbols
 		artifact.Sections = extractSectionNames(sectionData)
-		// generateColorImage(fullImageDir, binaryArray, sectionData)
-	} else if sectionData, libraries, symbols, err := binanal.ELFAnal(path); err == nil {
+		if err := generateColorImage(artifact.ImageDir, artPath, sectionData); err != nil {
+			return err
+		}
+	} else if sectionData, libraries, symbols, err := binanal.ELFAnal(artPath); err == nil {
 		artifact.Format = "elf"
 		artifact.Imports = libraries
 		artifact.Symbols = symbols
 		artifact.Sections = extractSectionNames(sectionData)
-		// generateColorImage(fullImageDir, binaryArray, sectionData)
-	} else if sectionData, libraries, symbols, err := binanal.MACHOAnal(path); err == nil {
+		if err := generateColorImage(artifact.ImageDir, artPath, sectionData); err != nil {
+			return err
+		}
+	} else if sectionData, libraries, symbols, err := binanal.MACHOAnal(artPath); err == nil {
 		artifact.Format = "macho"
 		artifact.Imports = libraries
 		artifact.Symbols = symbols
 		artifact.Sections = extractSectionNames(sectionData)
-		// generateColorImage(fullImageDir, binaryArray, sectionData)
+		if err := generateColorImage(artifact.ImageDir, artPath, sectionData); err != nil {
+			return err
+		}
 	} else {
 		artifact.Format = "unknown"
 		artifact.Imports = libraries
 		artifact.Symbols = symbols
-		// generateImage(fullImageDir, binaryArray)
+		if err := generateImage(artifact.ImageDir, artPath); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -269,6 +283,47 @@ func binaryData(artifact *Artifact, path string) error {
 
 // Relocates the uploaded file
 func relocate(artifact *Artifact, path string) error {
+	return nil
+}
+
+// Encodes the binary in a colorful or B/W image
+func generateColorImage(imgout, artPath string, sectionData []binanal.SectionData) error {
+	// Read file to byte array
+	binaryArray, err := ioutil.ReadFile(artPath)
+	if err != nil {
+		return err
+	}
+
+	encoder, binImage := image.EncodeColor(binaryArray, sectionData)
+
+	// Write image to file
+	malPict, err := os.Create(imgout)
+	if err != nil {
+		return err
+	}
+	encoder.Encode(malPict, binImage)
+
+	return nil
+}
+
+// Generates a B/W image file
+func generateImage(imgout, artPath string) error {
+	// Read file to byte array
+	binaryArray, err := ioutil.ReadFile(artPath)
+	if err != nil {
+		return err
+	}
+
+	// Encodes the binary in a colorful or B/W image
+	encoder, binImage := image.EncodeBW(binaryArray)
+
+	// Write image to file
+	malPict, err := os.Create(imgout)
+	if err != nil {
+		return err
+	}
+	encoder.Encode(malPict, binImage)
+
 	return nil
 }
 
