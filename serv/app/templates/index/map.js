@@ -86,8 +86,8 @@
             images: []
         }
         map.addListener("clickMapObject", function (event) {
-            console.log(event.mapObject);
-            $("#dialog").dialog();
+            // console.log(event.mapObject);
+            // $("#dialog").dialog();
         });
         map.dataProvider = createCircles(mapData,dataProvider);
         map.write("mapdiv");

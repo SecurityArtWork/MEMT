@@ -51,9 +51,11 @@
         </li>
     </ul>
     <div class="input-group search-box">
-    <input type="text" class="form-control" placeholder="Search sample...">
-    <span class="input-group-btn">
-        <button class="btn btn-default" type="button">Go!</button>
-    </span>
+        <form method="POST" action="{{ url_for('SearchView:search', hash='') }}">
+            <input name="hash" type="text" class="form-control" placeholder="Search hash...">
+            <span class="input-group-btn">
+                <button class="btn btn-default" type="submit">Go!</button>
+            </span>
+        </form>
 </div>
 </div>
