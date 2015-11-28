@@ -16,17 +16,19 @@ from app.extensions import mongo
 
 class SearchView(FlaskView):
 
-    @route('/<hash>', methods=['POST'])
-    def search(self):
-        hash = request.args["hash"]
+    @route('/<hash>', methods=['GET', 'POST'])
+    def search(self, hash=None):
+        if request.method == 'POST':
+            hash = request.data["hash"]
         if hash:
             assets = mongo.db.assets
             query = assets.find({"$or": [{"ssdeep": {"$eq": hash}}, {"md5": {"$eq": hash}}, {"sha1": {"$eq": hash}}, {"sha256": {"$eq": hash}},{"sha512": {"$eq": hash}}]})
             if query.count() == 0:
                 abort(404)
             elif query.count() == 1:
-                query.next()
-                redirect(url_for("detail.index", hash=query.sha256))
+                for q in query:
+                    print(q["sha256"])
+                    redirect(url_for("detail.index", hash=q["sha256"]))
             else:
                 abort(500)
         redirect(url_for("index.index"))
