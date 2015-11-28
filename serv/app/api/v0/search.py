@@ -17,12 +17,11 @@ from app.extensions import mongo
 
 class SearchView(FlaskView):
 
-    @route('/<hash>', methods=['GET','POST'])
+    @route('/', methods=['POST'])
+    @route('/<hash>', methods=['GET'])
     def search(self, hash=None):
-        print("BUSCANDO")
         if request.method == 'POST':
-            print("HOLA")
-            hash = request.data["hash"]
+            hash = request.form["hash"]
         if hash:
             print("ADIOS")
             assets = mongo.db.assets
