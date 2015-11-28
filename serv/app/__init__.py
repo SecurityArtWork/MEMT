@@ -7,22 +7,22 @@ from __future__ import print_function, absolute_import
 import os
 
 from flask import Flask
-from flask import render_template
 from flask import request
+from flask import render_template
 
 from .utils import sha256Converter
 
 from config import config, Config
 from .extensions import babel
 from .extensions import mongo
-from .extensions import socketio
 from .extensions import celery
+from .extensions import socketio
 
 from .api.v0.graph import GraphView
 from .api.v0.malware import MalwareView
+from .api.v0.search import SearchView
 
 from .pages.index import bp as index
-from .pages.search import bp as search
 from .pages.list import bp as listbp
 from .pages.detail import bp as detail
 from .pages.faq import bp as faq
@@ -70,7 +70,6 @@ def register_extensions(app):
 
 def register_blueprints(app):
     app.register_blueprint(index)
-    app.register_blueprint(search)
     app.register_blueprint(listbp)
     app.register_blueprint(detail)
     app.register_blueprint(faq)
@@ -78,10 +77,12 @@ def register_blueprints(app):
     app.register_blueprint(upload)
     GraphView.register(app)
     MalwareView.register(app)
+    SearchView.register(app)
     return None
 
 def register_utils(app):
     app.url_map.converters['sha256'] = sha256Converter
+
 
 def register_errorhandlers(app):
     def render_error(error):

@@ -4,6 +4,7 @@
 from __future__ import absolute_import
 
 import os
+import hashlib
 
 from flask import current_app as app
 from flask import Blueprint
@@ -31,8 +32,15 @@ def submit():
     form = UploadForm()
     if form.validate_on_submit():
         filename = secure_filename(form.malware.data.filename)
-        form.malware.data.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-    return redirect(url_for('upload.landing', filename=filename))
+        form.malware.data.save(os.path.join(app.config['TMP_UPLOAD_FOLDER'], filename))
+        with open(os.path.join(app.config['TMP_UPLOAD_FOLDER'], filename), 'rb') as malware:
+            data = malware.read()
+            new_name = hashlib.sha256(data).hexdigest()
+            if not os.path.isfile(os.path.join(app.config['BIN_UPLOAD_FOLDER'],new_name)):
+                os.rename(os.path.join(app.config['TMP_UPLOAD_FOLDER'], filename), os.path.join(app.config['BIN_UPLOAD_FOLDER'], new_name))
+            else:
+                return redirect(url_for("detail.index", hash=new_name))
+    return redirect(url_for('upload.landing', hash=new_name))
 
 @bp.route("/landing", methods=["GET"])
 def landing(filename=None):

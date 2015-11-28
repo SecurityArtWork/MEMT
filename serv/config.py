@@ -46,8 +46,9 @@ class Config(object):
     RT_LAST_COUNTRIES = 100
     FEED_LAST_NEWS = 5
 
-    BIN_UPLOAD_FOLDER = os.path.join(BASEDIR, "..", "aux", "uploads")
-    IMG_UPLOAD_FOLDER = os.path.join(BASEDIR, "..", "aux", "images")
+    TMP_UPLOAD_FOLDER = os.path.join(BASEDIR, "..", "aux", "uploads")
+    BIN_UPLOAD_FOLDER = os.path.join(BASEDIR, "..", "aux", "malware", "artifacts")
+    IMG_UPLOAD_FOLDER = os.path.join(BASEDIR, "..", "aux", "malware", "images")
 
     MEMT_SLOW_DB_QUERY_TIME = 0.5
 
