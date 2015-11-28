@@ -3,9 +3,20 @@ from __future__ import print_function, absolute_import
 
 import geoip2.database
 
+from datetime import datetime
+
 from flask import current_app as app
 
 from app.extensions import mongo
+
+IP = {
+      "city": "unknown",
+      "ip": "unknown",
+      "country": "unknown",
+      "iso_code": "unknown",
+      "date": datetime.utcnow(),
+      "geo": [0.0, 0.0]
+}
 
 
 def get_common_info():
