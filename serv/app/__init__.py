@@ -4,6 +4,8 @@
 from __future__ import print_function, absolute_import
 # pylint: disable=C0111,E1101
 
+__version__ = "0.0.1"
+
 import os
 
 from flask import Flask

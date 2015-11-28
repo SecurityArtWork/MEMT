@@ -30,9 +30,9 @@ class Config(object):
     CELERY_MONGODB_BACKEND_SETTINGS = {
         "taskmeta_collection": "memtResults",
     }
-    CELERY_TASK_SERIALIZER = 'json'
-    CELERY_RESULT_SERIALIZER = 'json'
-    CELERY_ACCEPT_CONTENT = ['json']
+    CELERY_TASK_SERIALIZER = 'memtjson'
+    CELERY_RESULT_SERIALIZER = 'memtjson'
+    CELERY_ACCEPT_CONTENT = ['memtjson']
     CELERY_TIMEZONE = 'Europe/Madrid'
     CELERY_ENABLE_UTC = True
     CELERY_CREATE_MISSING_QUEUES = True
