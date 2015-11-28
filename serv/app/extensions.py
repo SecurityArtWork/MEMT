@@ -13,6 +13,10 @@ from flask.ext.babel import Babel
 from flask.ext.pymongo import PyMongo
 from flask_socketio import SocketIO
 
+from kombu.serialization import register
+from kombu import serialization
+
+from .utils import memt_dumps, memt_loads
 
 # Flask extensions
 babel = Babel()
@@ -24,6 +28,12 @@ socketio = SocketIO()
 celery = Celery(__name__,
                 broker=Config.CELERY_BROKER_URL,
                 backend=Config.CELERY_RESULT_BACKEND)
+
+register('memtjson', memt_dumps, memt_loads,
+    content_type='application/x-memtjson',
+    content_encoding='utf-8')
+serialization.registry._decoders.pop("application/x-python-serialize")
+
 
 if not os.environ.get('PRODUCTION'):
     from flask_debugtoolbar import DebugToolbarExtension

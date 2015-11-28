@@ -4,6 +4,8 @@
 from __future__ import print_function, absolute_import
 # pylint: disable=C0111,E1101
 
+__version__ = "0.0.1"
+
 import os
 
 from flask import Flask
@@ -57,7 +59,7 @@ def register_extensions(app):
     mongo.init_app(app, config_prefix='MONGO')
 
     # Setting socketIO in async mode
-    socketio.init_app(app, async_mode='eventlet', engineio_logger=True)
+    socketio.init_app(app, async_mode='eventlet', engineio_logger=False)
     celery.conf.update(app.config)
 
     # Add development helper for the UI

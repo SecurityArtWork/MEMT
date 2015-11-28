@@ -30,9 +30,9 @@ class Config(object):
     CELERY_MONGODB_BACKEND_SETTINGS = {
         "taskmeta_collection": "memtResults",
     }
-    CELERY_TASK_SERIALIZER = 'json'
-    CELERY_RESULT_SERIALIZER = 'json'
-    CELERY_ACCEPT_CONTENT = ['json']
+    CELERY_TASK_SERIALIZER = 'memtjson'
+    CELERY_RESULT_SERIALIZER = 'memtjson'
+    CELERY_ACCEPT_CONTENT = ['memtjson']
     CELERY_TIMEZONE = 'Europe/Madrid'
     CELERY_ENABLE_UTC = True
     CELERY_CREATE_MISSING_QUEUES = True
@@ -43,7 +43,7 @@ class Config(object):
     MAXMAIN_DB_COUNTRIES = "/opt/dbs/GeoLite2-Country.mmdb"
     MAXMAIN_DB_CITIES = "/opt/dbs/GeoLite2-City.mmdb"
 
-    RT_LAST_COUNTRIES = 100
+    RT_LAST_COUNTRIES = 1000
     FEED_LAST_NEWS = 5
 
     TMP_UPLOAD_FOLDER = os.path.join(BASEDIR, "..", "aux", "uploads")

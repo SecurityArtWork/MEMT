@@ -25,34 +25,47 @@
                 }
             });
         });
-
+        //Let's parse the JSON data for each item
         function parseRTData(data) {
             $.each(data, function(index, item){
                 $.each(item.ipMeta, function(idx, ip) {
                     if ( ip.iso_code in CountryCounter )
                     {
+                        //increment the number of samples uploaded from this country
                         CountryCounter[ip.iso_code] += 1;
 
                     }
                     else
                     {
+                        //setting the counter for this country
                         CountryCounter[ip.iso_code] = 1;
+                        //Assign the country name to the iso_code
                         Countries[ip.iso_code] = ip.country;
                     }
                 });
             });
+            //Pushing data to mapData array which is going to be represented on RT Map.
             $.each(CountryCounter, function(country, count){
-                mapData.push({
-                    "code":country,
-                    "name": Countries[country],
-                    "value": count,
-                    "color": getRandomColor()
-                });
+                //checking if we are going to be able to represent the country
+                if ( country !== "null" && country !== "unknown")
+                {
+                    color = getRandomColor();
+
+                    mapData.push({
+                        "code": country,
+                        "name": Countries[country],
+                        "value": count,
+                        "color": color
+                    });
+                }
             });
             if ( map !== undefined)
             {
-                map.dataProvider = createCircles(mapData, map.dataProvider);
+                console.log("map defined");
+                map.dataProvider = createCircles(mapData, dataProvider);
                 map.validateData;
             }
+                jQuery("#countriesInMap").text("Showing "+mapData.length+" countries");
+
         };
 </script>
