@@ -2,8 +2,8 @@
 
 {% block head %}
     {{ super() }}
-    {% include "index/js.html" %}
-    {% include "index/css.html" %}
+    {% include "detail/js.html" %}
+    {% include "detail/css.html" %}
 {% endblock %}
 
 {% block body %}
@@ -14,9 +14,14 @@
                     <div class="col-lg-8 col-md-8">
 
                         <div class="col-lg-4 col-md-4">
+                            {% if strain %}
                             <div class="panel-strain">
                                 STRAIN
+                            {% else %}
+                            <div class="panel-mutation">
+                            {% endif %}
                             </div>
+
                         </div>
                         <div class="col-lg-8 col-md-8 umi">
                             <div class="panel panel-default">

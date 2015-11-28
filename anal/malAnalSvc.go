@@ -1,3 +1,23 @@
+/*
+
+// Test set
+
+{
+	"path": "~/Desktop/memtEnvEmu/uploads/wxp1.exe",
+	"ipMeta": {
+		"ip": "173.194.45.55",
+	    "iso_code": "US",
+	    "country": "United States",
+	    "city": "Minneapolis",
+	    "geo": [-93.2166, 44.9759],
+	    "date": "1448670771"}
+}
+
+
+curl -s http://localhost:31337/ -d'{"path": "/Users/kajuryto/Desktop/memtEnvEmu/uploads/wxp1.exe", "ipMeta": {"ip": "173.194.45.55", "iso_code": "US", "country": "United States", "city": "Minneapolis", "geo": [-93.2166, 44.9759], "date":"1448670771"}}' |python -m json.tool
+
+*/
+
 package main
 
 import (
@@ -11,64 +31,57 @@ import (
 	"os"
 	// "path"
 
-	// "github.com/securityartwork/cat/binanal"
+	"github.com/securityartwork/cat/binanal"
 	// "github.com/securityartwork/cat/image"
-	// "github.com/securityartwork/hashing"
+	"github.com/securityartwork/anal/hashing"
 )
 
 const (
 	VERSION = "0.0.1β"
 )
 
-var serviceFlag, infoFlag bool
-var hostFlag, portFlag string
+var serviceFlag, infoFlag, toDBFlag bool
+var hostFlag, portFlag, binDstFlag, imgDstFlag, dbHostFlag, dbPortFlag string
 
 func init() {
-	flag.BoolVar(&infoFlag, "-info", false, "Shows about info.")
-	flag.BoolVar(&serviceFlag, "-daemon", false, "Analysis as μservice.")
-	flag.StringVar(&hostFlag, "-host", "127.0.0.1", "Sets the μservice address.")
-	flag.StringVar(&portFlag, "-port", "31337", "Sets the μservice port.")
+	// Operation mode flags
+	flag.BoolVar(&infoFlag, "info", false, "Shows about info.")
+	flag.BoolVar(&toDBFlag, "todb", true, "Stores the info into db.")
+
+	// API flags
+	flag.StringVar(&dbHostFlag, "dbhost", "127.0.0.1", "Sets the mongodb address.")
+	flag.StringVar(&dbPortFlag, "dbport", "27017", "Sets the mongodb port.")
+
+	// API flags
+	flag.StringVar(&hostFlag, "host", "127.0.0.1", "Sets the μservice address.")
+	flag.StringVar(&portFlag, "port", "31337", "Sets the μservice port.")
+
+	// Analysis flags
+	flag.StringVar(&binDstFlag, "bindst", "/tmp/bin", "Binary final folder.")
+	flag.StringVar(&imgDstFlag, "imgdst", "/tmp/img", "Images final folder.")
 }
 
-// "ipMeta": [{"ip": "173.194.45.55",
-//             "iso_code": "US",
-//             "country": "United States",
-//             "city": "Minneapolis",
-//             "geo": [-93.2166, 44.9759],
-//             "date": ""}],
-//
-// type IPMeta struct {
-// 	IP      string    `json:"ip"`
-// 	ISOCode string    `json:"iso_code"`
-// 	Country string    `json:"country"`
-// 	City    string    `json:"city"`
-// 	Geo     []float32 `json:"geo"`
-// 	Date    string    `json:"date"`
-// }
-
 type Artifact struct {
-	Ssdeep      string   `json:"ssdeep"`
-	Md5         string   `json:"md5"`
-	Sha1        string   `json:"sha1"`
-	Sha256      string   `json:"sha256"`
-	Sha512      string   `json:"sha512"`
-	Strain      string   `json:"strain"` // if strain nil, else strain hash
-	Format      string   `json:"format"`
-	Symbols     []string `json:"symbols"`
-	Imports     []string `json:"imports"`
-	Sections    []string `json:"sections"`
-	Mutations   []string `json:"mutations"`
-	ImageDir    string   `json:"imageDir"`
-	ArtifactDir string   `json:"artifactDir"`
-	Arch        string   `json:"arch"`
-	Task        AnalTask `json:"taskData"`
+	Ssdeep      string      `json:"ssdeep"`
+	Md5         string      `json:"md5"`
+	Sha1        string      `json:"sha1"`
+	Sha256      string      `json:"sha256"`
+	Sha512      string      `json:"sha512"`
+	Strain      string      `json:"strain"` // if strain nil, else strain hash
+	Format      string      `json:"format"`
+	Symbols     []string    `json:"symbols"`
+	Imports     []string    `json:"imports"`
+	Sections    []string    `json:"sections"`
+	Mutations   []string    `json:"mutations"`
+	ImageDir    string      `json:"imageDir"`
+	ArtifactDir string      `json:"artifactDir"`
+	Arch        string      `json:"arch"`
+	IPMeta      interface{} `json:"ipMeta"`
 }
 
 type AnalTask struct {
-	CeleryID string      `json:"celeryID"`
-	MongoID  string      `json:"mongoID"`
-	IPMeta   interface{} `json:"ipMeta"`
-	Path     string      `json:"path"`
+	IPMeta interface{} `json:"ipMeta"`
+	Path   string      `json:"path"`
 }
 
 func main() {
@@ -143,33 +156,114 @@ func analysisEndpoint(rw http.ResponseWriter, req *http.Request) {
 	// Recover path of the artifact to analyze
 	path := at.Path
 
+	// Generate hashes
 	if err := generateHashes(&artifact, path); err != nil {
 		sendJSONError(rw, http.StatusInternalServerError, err)
 		return
 	}
 
+	// Extract binary info
 	if err := binaryData(&artifact, path); err != nil {
 		sendJSONError(rw, http.StatusInternalServerError, err)
 		return
 	}
 
-	artifact.Task = at
-
-	// Send result of the analysis
-	rw.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(rw).Encode(artifact); err != nil {
-		log.Println(err)
+	// TODO: Move file to binary repository
+	if err := relocate(&artifact, path); err != nil {
 		sendJSONError(rw, http.StatusInternalServerError, err)
+		return
+	}
+
+	// Sets request IP meta into artifact struct
+	artifact.IPMeta = at.IPMeta
+
+	// TODO: Catalog new sample
+
+	// TODO: Insert artifact into DB
+	if toDBFlag {
+		fmt.Println("NYI")
+	} else {
+		// Debug send result of the analysis back
+		rw.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(rw).Encode(artifact); err != nil {
+			log.Println(err)
+			sendJSONError(rw, http.StatusInternalServerError, err)
+		}
 	}
 }
 
+// ==============
+// = binary ops =
+// ==============
 // Generate the hashes of the binary file
 func generateHashes(artifact *Artifact, path string) error {
+	// Read file to byte array
+	file, err := ioutil.ReadFile(path)
+	if err != nil {
+		return err
+	}
+
+	ssdeep, err := hashing.SSDEEPFromFile(path)
+	if err != nil {
+		return err
+	}
+
+	md5, err := hashing.CalcMD5(file)
+	if err != nil {
+		return err
+	}
+
+	sha1, err := hashing.CalcSHA1(file)
+	if err != nil {
+		return err
+	}
+
+	sha256, err := hashing.CalcSHA256(file)
+	if err != nil {
+		return err
+	}
+
+	sha512, err := hashing.CalcSHA512(file)
+	if err != nil {
+		return err
+	}
+
+	artifact.Ssdeep = ssdeep
+	artifact.Md5 = md5
+	artifact.Sha1 = sha1
+	artifact.Sha256 = sha256
+	artifact.Sha512 = sha512
+
 	return nil
 }
 
 // Extracts the info from the binary
 func binaryData(artifact *Artifact, path string) error {
+	if sectionData, libraries, symbols, err := binanal.PEAnal(path); err == nil {
+		artifact.Format = "pe"
+		artifact.Imports = libraries
+		artifact.Symbols = symbols
+		artifact.Sections = extractSectionNames(sectionData)
+		// generateColorImage(fullImageDir, binaryArray, sectionData)
+	} else if sectionData, libraries, symbols, err := binanal.ELFAnal(path); err == nil {
+		artifact.Format = "elf"
+		artifact.Imports = libraries
+		artifact.Symbols = symbols
+		artifact.Sections = extractSectionNames(sectionData)
+		// generateColorImage(fullImageDir, binaryArray, sectionData)
+	} else if sectionData, libraries, symbols, err := binanal.MACHOAnal(path); err == nil {
+		artifact.Format = "macho"
+		artifact.Imports = libraries
+		artifact.Symbols = symbols
+		artifact.Sections = extractSectionNames(sectionData)
+		// generateColorImage(fullImageDir, binaryArray, sectionData)
+	} else {
+		artifact.Format = "unknown"
+		artifact.Imports = libraries
+		artifact.Symbols = symbols
+		// generateImage(fullImageDir, binaryArray)
+	}
+
 	return nil
 }
 
@@ -178,9 +272,21 @@ func relocate(artifact *Artifact, path string) error {
 	return nil
 }
 
+// ================
+// = database ops =
+// ================
+
 // ===========
 // = Helpers =
 // ===========
+func extractSectionNames(sectionData []binanal.SectionData) []string {
+	var sectionNames []string
+	for k := range sectionData {
+		sectionNames = append(sectionNames, sectionData[k].Name)
+	}
+
+	return sectionNames
+}
 
 // ====================
 // = Helper functions =
