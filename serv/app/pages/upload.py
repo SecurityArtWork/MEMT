@@ -7,9 +7,10 @@ import os
 import hashlib
 import geoip2.database
 
+from geoip2.errors import AddressNotFoundError
+
 from datetime import datetime
 
-from geoip2.errors import AddressNotFoundError
 from pymongo import MongoClient
 
 from flask import current_app as app
