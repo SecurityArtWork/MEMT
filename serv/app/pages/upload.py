@@ -23,9 +23,7 @@ from flask import abort
 from werkzeug import secure_filename
 
 from app.forms.upload import UploadForm
-from celery_tasks.analysis import analysis
-
-from common import IP
+from app.celery_tasks.analysis import analysis
 
 
 bp = Blueprint('upload', __name__, url_prefix='/upload')
@@ -48,37 +46,34 @@ def submit():
             if os.path.isfile(os.path.join(app.config['BIN_UPLOAD_FOLDER'],sha256)):
                 return redirect(url_for("detail.index", hash=sha256))
         ## Celery
+        obj = {}
+                # "imageDir": os.path.join(app.config['IMG_UPLOAD_FOLDER'],
+                # "artifactDir": os.path.join(app.config['BIN_UPLOAD_FOLDER'],
+            #}
         reader = geoip2.database.Reader(app.config['MAXMAIN_DB_CITIES'])
         try:
             response = reader.city(request.remote_addr)
         except (AddressNotFoundError):
-            pass
+            obj["ipMeta"] = {
+                              "city": "unknown",
+                              "ip": "unknown",
+                              "country": "unknown",
+                              "iso_code": "unknown",
+                              "date": datetime.utcnow(),
+                              "geo": [0.0, 0.0]
+                            }
         else:
-            obj = {
-                "ssdeep": "",
-                "md5": "",
-                "sha1": "",
-                "sha256": "",
-                "sha512": "",
-                "strain": "",
-                "format": "",
-                "symbols": None,
-                "imports": None,
-                "sections": None,
-                "mutations": None,
-                "imageDir": "",
-                "artifactDir": "",
-                "arch": "",
-                "ipMeta": {
-                          "city": response.city.name,
-                          "ip": request.remote_addr,
-                          "country": response.country.name,
-                          "iso_code": response.country.iso_code,
-                          "date": datetime.utcnow(),
-                          "geo": [response.location.longitude, response.location.latitude]
-                          }
-            }
-        return redirect(url_for('upload.landing', hash=sha256))
+            obj["ipMeta"] = {
+                              "city": response.city.name,
+                              "ip": request.remote_addr,
+                              "country": response.country.name,
+                              "iso_code": response.country.iso_code,
+                              "date": datetime.utcnow(),
+                              "geo": [response.location.longitude, response.location.latitude]
+                            }
+        # Celery task
+        task_id = analysis.delay(obj)
+        return redirect(url_for('upload.landing', hash=sha256, task_id=task_id.id))
     return redirect(url_for("index.index"))
 
 @bp.route("/landing", methods=["GET"])
