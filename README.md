@@ -13,7 +13,7 @@ MEMT is not a simple tool or command line interface, MEMT is a complete whole pl
 
 MEMT is able to identify malware, it has a great dashboard which displays in real time from where is the malware been identified around the globe, moreover the platform offers a really good detail of each malware, for example some static analysis is shown as well as a picture of the malware, yes you have read well, the picture of the malware. That picture helps to identify in one sight the binary sections and how it is spited up internally, actually it is a really nice feature.
 
-## Requirements
+## RequireMEMTs
 There several technologies that the MEMT project uses. They are as follows:
 
 | Back-end | Front-end  |
@@ -22,17 +22,17 @@ There several technologies that the MEMT project uses. They are as follows:
 |  Python  |   jQuery   |
 |  Flask   | Bootstrap  |
 | MongoDB  |  SocketIO  |
-|  Celery  |            |
+|  Celery  |   AmMap    |
 | RabbitMQ |            |
 | SocketIO |            |
-| -------- | ---------- |
+|  Radare  |            |
 
 ## Components
-As said before MENT is a big platform so MEMT is built upon different modules or applications, following you have the main parts.
+As said before MEMT is a big platform so MEMT is built upon different modules or applications, following you have the main parts.
 
 - Web server: It is build using Python and Flask as a web server, moreover it needs to be run by Gunicorn which is a WSGI compatible and allows good performance. On the other hand, there is a Celery and RabbitMQ. RabbitMQ is like a buffer database and it helps Celery to process all the background tasks.
 
-- Database: We use MongoDB as database. It is well known how good performance and capacity has this database. MongoDB has such amount of functionalities that makes that make the development really easy.
+- Database: We use MongoDB as database. It is well known how good performance and capacity has this database. MongoDB has such amount of functionalities that makes that make the developMEMT really easy.
 
 - Cli: It is a command line interface that is built using Go. The Cli will help the users of MEMT to load malware in a easy way. It can run in two modes, daemon and standalone.
 
