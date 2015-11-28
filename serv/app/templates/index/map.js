@@ -11,36 +11,32 @@
     var mapData = [{
                 "code": "AF",
                 "name": "Afghanistan",
-                "value": 22,
+                "value": 4,
                 "color": getRandomColor()
             }];
 
     var map;
-    var minBulletSize = 3;
-    var maxBulletSize = 70;
+    var minBulletSize = 5;
+    var maxBulletSize = 20;
     var min = Infinity;
     var max = -Infinity;
+    var dataProvider;
     /*
     although ammap has methos like getAreaCenterLatitude and getAreaCenterLongitude,
     they are not suitable in quite a lot of cases as the center of some countries
     is even outside the country itself (like US, because of Alaska and Hawaii)
     That's why wehave the coordinates stored here
     */
-    function getMinMax(mapData){
-    // get min and max values
+    function createCircles(mapData, dataProvider){
         for (var i = 0; i < mapData.length; i++) {
             var value = mapData[i].value;
             if (value < min) {
-                window.min = value;
+                min = value;
             }
             if (value > max) {
-                window.max = value;
+                max = value;
             }
         }
-    }
-
-    function createCircles(mapData, dataProvider){
-
         // it's better to use circle square to show difference between values, not a radius
         var maxSquare = maxBulletSize * maxBulletSize * 2 * Math.PI;
         var minSquare = minBulletSize * minBulletSize * 2 * Math.PI;
@@ -72,7 +68,6 @@
 
 
     AmCharts.theme = AmCharts.themes.black;
-    getMinMax(mapData);
 
 
 
@@ -90,7 +85,7 @@
             alpha: 0.6
         }
 
-        var dataProvider = {
+        dataProvider = {
             mapVar: AmCharts.maps.worldLow,
             images: []
         }
