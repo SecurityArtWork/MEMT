@@ -6,7 +6,7 @@ from __future__ import absolute_import
 from flask import Blueprint, render_template
 
 
-bp = Blueprint('detail', __name__, url_prefix='/details')
+bp = Blueprint('detail', __name__, url_prefix='/detail')
 
 
 @bp.route('/<sha256:hash>', methods=['GET'])

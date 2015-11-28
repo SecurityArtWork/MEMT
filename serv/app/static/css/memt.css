@@ -147,3 +147,7 @@ margin-left: 1%;
 #countriesInMap{
     float: right;
 }
+
+.input-group .form-control{
+    width: 80%;
+}
