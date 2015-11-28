@@ -43,7 +43,7 @@ class Config(object):
     MAXMAIN_DB_COUNTRIES = "/opt/dbs/GeoLite2-Country.mmdb"
     MAXMAIN_DB_CITIES = "/opt/dbs/GeoLite2-City.mmdb"
 
-    RT_LAST_COUNTRIES = 100
+    RT_LAST_COUNTRIES = 1000
     FEED_LAST_NEWS = 5
 
     TMP_UPLOAD_FOLDER = os.path.join(BASEDIR, "..", "aux", "uploads")
