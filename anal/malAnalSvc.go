@@ -22,6 +22,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -29,24 +30,30 @@ import (
 	"log"
 	"net/http"
 	"os"
-	// "path"
+	"path"
 
-	"github.com/securityartwork/cat/binanal"
-	// "github.com/securityartwork/cat/image"
 	"github.com/securityartwork/anal/hashing"
+	"github.com/securityartwork/cat/binanal"
+	"github.com/securityartwork/cat/image"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 const (
-	VERSION = "0.0.1β"
+	VERSION   = "0.0.1β"
+	DBNAME    = "memt"
+	COLNAME   = "assets"
+	THRESHOLD = 35 // strain threshold
 )
 
-var serviceFlag, infoFlag, toDBFlag bool
+var serviceFlag, infoFlag, pongFlag bool
 var hostFlag, portFlag, binDstFlag, imgDstFlag, dbHostFlag, dbPortFlag string
+var memtDB MongoDatabase
 
 func init() {
 	// Operation mode flags
 	flag.BoolVar(&infoFlag, "info", false, "Shows about info.")
-	flag.BoolVar(&toDBFlag, "todb", true, "Stores the info into db.")
+	flag.BoolVar(&pongFlag, "pong", false, "Sends the result back to the requester.")
 
 	// API flags
 	flag.StringVar(&dbHostFlag, "dbhost", "127.0.0.1", "Sets the mongodb address.")
@@ -102,6 +109,14 @@ func main() {
 		fmt.Println("\t@bitsniper, @msanchez_87, @xumeiquer")
 	}
 
+	memtDB = MongoDatabase{
+		DBAddr: dbHostFlag,
+		DBPort: dbPortFlag,
+		DBName: DBNAME,
+	}
+
+	memtDB.Connect()
+
 	if err := startServer(hostFlag, portFlag); err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
@@ -154,22 +169,26 @@ func analysisEndpoint(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	// Recover path of the artifact to analyze
-	path := at.Path
+	filePath := at.Path
 
 	// Generate hashes
-	if err := generateHashes(&artifact, path); err != nil {
+	if err := generateHashes(&artifact, filePath); err != nil {
 		sendJSONError(rw, http.StatusInternalServerError, err)
 		return
 	}
+
+	// Set file pointers
+	artifact.ArtifactDir = path.Join(binDstFlag, artifact.Sha256)
+	artifact.ImageDir = path.Join(imgDstFlag, artifact.Sha256+".png")
 
 	// Extract binary info
-	if err := binaryData(&artifact, path); err != nil {
+	if err := binaryData(&artifact, filePath); err != nil {
 		sendJSONError(rw, http.StatusInternalServerError, err)
 		return
 	}
 
-	// TODO: Move file to binary repository
-	if err := relocate(&artifact, path); err != nil {
+	// Move file to binary repository
+	if err := relocate(&artifact, filePath); err != nil {
 		sendJSONError(rw, http.StatusInternalServerError, err)
 		return
 	}
@@ -177,18 +196,37 @@ func analysisEndpoint(rw http.ResponseWriter, req *http.Request) {
 	// Sets request IP meta into artifact struct
 	artifact.IPMeta = at.IPMeta
 
-	// TODO: Catalog new sample
-
-	// TODO: Insert artifact into DB
-	if toDBFlag {
-		fmt.Println("NYI")
+	// Catalog new sample
+	parent, err := memtDB.searchMutationStrain(artifact.Ssdeep)
+	if err != nil && err != isNotAMutationError {
+		sendJSONError(rw, http.StatusInternalServerError, err)
+		return
+	} else if err != nil && err == isNotAMutationError {
+		// set as a new strain
+		log.Println("New strain")
+		artifact.Strain = ""
 	} else {
-		// Debug send result of the analysis back
-		rw.Header().Set("Content-Type", "application/json")
-		if err := json.NewEncoder(rw).Encode(artifact); err != nil {
-			log.Println(err)
+		// Add mutation to the strain and the id of the strain to this artifact
+		log.Println("Child of: " + parent)
+		artifact.Strain = parent
+
+		if err := memtDB.appendChildToStrain(parent, artifact.Sha256); err != nil {
 			sendJSONError(rw, http.StatusInternalServerError, err)
+			return
 		}
+	}
+
+	// After cataloging insert artifact into DB
+	if err := memtDB.insertArtifact(&artifact); err != nil {
+		sendJSONError(rw, http.StatusInternalServerError, err)
+		return
+	}
+
+	// Debug send result of the analysis back
+	rw.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(rw).Encode(artifact); err != nil {
+		log.Println(err)
+		sendJSONError(rw, http.StatusInternalServerError, err)
 	}
 }
 
@@ -196,14 +234,14 @@ func analysisEndpoint(rw http.ResponseWriter, req *http.Request) {
 // = binary ops =
 // ==============
 // Generate the hashes of the binary file
-func generateHashes(artifact *Artifact, path string) error {
+func generateHashes(artifact *Artifact, filePath string) error {
 	// Read file to byte array
-	file, err := ioutil.ReadFile(path)
+	file, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return err
 	}
 
-	ssdeep, err := hashing.SSDEEPFromFile(path)
+	ssdeep, err := hashing.SSDEEPFromFile(filePath)
 	if err != nil {
 		return err
 	}
@@ -238,43 +276,177 @@ func generateHashes(artifact *Artifact, path string) error {
 }
 
 // Extracts the info from the binary
-func binaryData(artifact *Artifact, path string) error {
-	if sectionData, libraries, symbols, err := binanal.PEAnal(path); err == nil {
+func binaryData(artifact *Artifact, filePath string) error {
+	if sectionData, libraries, symbols, err := binanal.PEAnal(filePath); err == nil {
 		artifact.Format = "pe"
 		artifact.Imports = libraries
 		artifact.Symbols = symbols
 		artifact.Sections = extractSectionNames(sectionData)
-		// generateColorImage(fullImageDir, binaryArray, sectionData)
-	} else if sectionData, libraries, symbols, err := binanal.ELFAnal(path); err == nil {
+		if err := generateColorImage(artifact.ImageDir, filePath, sectionData); err != nil {
+			return err
+		}
+	} else if sectionData, libraries, symbols, err := binanal.ELFAnal(filePath); err == nil {
 		artifact.Format = "elf"
 		artifact.Imports = libraries
 		artifact.Symbols = symbols
 		artifact.Sections = extractSectionNames(sectionData)
-		// generateColorImage(fullImageDir, binaryArray, sectionData)
-	} else if sectionData, libraries, symbols, err := binanal.MACHOAnal(path); err == nil {
+		if err := generateColorImage(artifact.ImageDir, filePath, sectionData); err != nil {
+			return err
+		}
+	} else if sectionData, libraries, symbols, err := binanal.MACHOAnal(filePath); err == nil {
 		artifact.Format = "macho"
 		artifact.Imports = libraries
 		artifact.Symbols = symbols
 		artifact.Sections = extractSectionNames(sectionData)
-		// generateColorImage(fullImageDir, binaryArray, sectionData)
+		if err := generateColorImage(artifact.ImageDir, filePath, sectionData); err != nil {
+			return err
+		}
 	} else {
 		artifact.Format = "unknown"
 		artifact.Imports = libraries
 		artifact.Symbols = symbols
-		// generateImage(fullImageDir, binaryArray)
+		if err := generateImage(artifact.ImageDir, filePath); err != nil {
+			return err
+		}
 	}
 
 	return nil
 }
 
 // Relocates the uploaded file
-func relocate(artifact *Artifact, path string) error {
+func relocate(artifact *Artifact, filePath string) error {
+	if err := os.Rename(filePath, artifact.ArtifactDir); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Encodes the binary in a colorful or B/W image
+func generateColorImage(imgout, filePath string, sectionData []binanal.SectionData) error {
+	// Read file to byte array
+	binaryArray, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return err
+	}
+
+	encoder, binImage := image.EncodeColor(binaryArray, sectionData)
+
+	// Write image to file
+	malPict, err := os.Create(imgout)
+	if err != nil {
+		return err
+	}
+	encoder.Encode(malPict, binImage)
+
+	return nil
+}
+
+// Generates a B/W image file
+func generateImage(imgout, filePath string) error {
+	// Read file to byte array
+	binaryArray, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return err
+	}
+
+	// Encodes the binary in a colorful or B/W image
+	encoder, binImage := image.EncodeBW(binaryArray)
+
+	// Write image to file
+	malPict, err := os.Create(imgout)
+	if err != nil {
+		return err
+	}
+	encoder.Encode(malPict, binImage)
+
 	return nil
 }
 
 // ================
 // = database ops =
 // ================
+
+var isNotAMutationError = errors.New("The given DNA is not a mutation.")
+
+type MongoDatabase struct {
+	DBAddr string
+	DBPort string
+	DBName string
+	db     *mgo.Database
+}
+
+// Connect to the database
+func (mdb *MongoDatabase) Connect() {
+	log.Println("DB: Connecting to " + mdb.DBAddr + ":" + mdb.DBPort)
+	session, err := mgo.Dial(mdb.DBAddr + ":" + mdb.DBPort)
+	if err != nil {
+		log.Fatalf("DB: %s", err.Error())
+	}
+
+	session.SetMode(mgo.Monotonic, true)
+
+	db := session.DB(mdb.DBName)
+	mdb.db = db
+}
+
+// search if element is a mutation of a strain
+func (mdb *MongoDatabase) searchMutationStrain(ssdeep string) (string, error) {
+	var result []Artifact
+	var strain string
+
+	col := mdb.db.C(COLNAME)
+	// seaarch for empty straains (means it has not a parent strain, also it is a strain)
+	query := bson.M{"strain": ""}
+
+	if err := col.Find(query).All(&result); err != nil {
+		return "", err
+	}
+
+	// find parent strain
+	for k := range result {
+		perc, err := hashing.CompareSSDEEP(result[k].Ssdeep, ssdeep)
+		if err != nil {
+			return "", err
+		}
+
+		if perc >= THRESHOLD {
+			strain = result[k].Sha256
+			break
+		}
+	}
+
+	// if no parent return not a mutation
+	if strain == "" {
+		return "", isNotAMutationError
+	}
+
+	// else return the sha256 of the parent
+	return strain, nil
+}
+
+// append mutation to an already existing strain
+func (mdb *MongoDatabase) appendChildToStrain(strainHash, mutationHash string) error {
+	col := mdb.db.C(COLNAME)
+	query := bson.M{"sha256": strainHash}
+	update := bson.M{"$addToSet": bson.M{"mutations": mutationHash}}
+
+	if err := col.Update(query, update); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Insert artifact into db
+func (mdb *MongoDatabase) insertArtifact(artifact *Artifact) error {
+	col := mdb.db.C(COLNAME)
+	if err := col.Insert(artifact); err != nil {
+		return err
+	}
+
+	return nil
+}
 
 // ===========
 // = Helpers =

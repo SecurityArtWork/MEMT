@@ -10,6 +10,15 @@ import (
 	"github.com/dutchcoders/gossdeep"
 )
 
+func CompareSSDEEP(hash1, hash2 string) (int, error) {
+	percent, err := ssdeep.Compare(hash1, hash2)
+	if err != nil {
+		return 0, err
+	}
+
+	return percent, nil
+}
+
 func SSDEEPFromFile(file string) (string, error) {
 	fuzzy, err := ssdeep.HashFilename(file)
 	if err != nil {
