@@ -16,18 +16,16 @@ MEMT is able to identify malware, it has a great dashboard which displays in rea
 ## Requirements
 There several technologies that the MEMT project uses. They are as follows:
 
-| -------- | ---------- |
 | Back-end | Front-end  |
-| -------- | ---------- |
-| Go       | JavaScript |
-| Python   | Bootstrap  |
-| Flask    | SocketIO   |
-| MongoDB  |            |
-| Celery   |            |
+| :------: | :--------: |
+|    Go    | JavaScript |
+|  Python  |   jQuery   |
+|  Flask   | Bootstrap  |
+| MongoDB  |  SocketIO  |
+|  Celery  |            |
 | RabbitMQ |            |
 | SocketIO |            |
 | -------- | ---------- |
-
 
 ## Components
 As said before MENT is a big platform so MEMT is built upon different modules or applications, following you have the main parts.
