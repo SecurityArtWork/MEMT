@@ -1,12 +1,8 @@
 <script type="text/javascript" charset="utf-8">
-
-
-
         $(document).ready(function(){
-
             CountryCounter = {}
             Countries = {}
-            RTMapNamespace = '/rtmap'; // change to an empty string to use the global namespace
+            RTMapNamespace = '/rtmap';
 
             // the socket.io documentation recommends sending an explicit package upon connection
             // this is specially important when using the global namespace
@@ -33,7 +29,6 @@
                     {
                         //increment the number of samples uploaded from this country
                         CountryCounter[ip.iso_code] += 1;
-
                     }
                     else
                     {
@@ -50,7 +45,6 @@
                 if ( country !== "null" && country !== "unknown")
                 {
                     color = getRandomColor();
-
                     mapData.push({
                         "code": country,
                         "name": Countries[country],
@@ -61,11 +55,12 @@
             });
             if ( map !== undefined)
             {
-                console.log("map defined");
+                //if map is already loaded, we only have to recalculate circles and validateData.
                 map.dataProvider = createCircles(mapData, dataProvider);
-                map.validateData;
+                map.validateData();
             }
-                jQuery("#countriesInMap").text("Showing "+mapData.length+" countries");
+            //Set counter label to show the number of countries painted.
+            jQuery("#countriesInMap").text("Showing "+mapData.length+" countries");
 
         };
 </script>
