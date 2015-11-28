@@ -76,9 +76,18 @@ def submit():
         return redirect(url_for('upload.landing', hash=sha256, task_id=task_id.id))
     return redirect(url_for("index.index"))
 
+
 @bp.route("/landing", methods=["GET"])
 def landing(filename=None):
     if filename:
         return render_template("upload/landing.html", filename)
     abort(404)
 
+@bp.route("/landing/", methods=["GET"])
+def landing_barra(filename=None):
+    return redirect(url_for("upload.landing"))
+
+
+@bp.route("/", methods=["GET"])
+def index_barra(filename=None):
+    return redirect(url_for("upload.index"))
