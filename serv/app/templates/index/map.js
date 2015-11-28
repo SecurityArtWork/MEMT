@@ -5,22 +5,17 @@
         var color = '#';
         for (var i = 0; i < 6; i++ ) {
             color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
     }
-    return color;
-}
-    var mapData = [{
-                "code": "AF",
-                "name": "Afghanistan",
-                "value": 4,
-                "color": getRandomColor()
-            }];
+    var mapData = [];
 
     var map;
-    var minBulletSize = 5;
-    var maxBulletSize = 20;
+    var minBulletSize = 10;
+    var maxBulletSize = 40;
     var min = Infinity;
     var max = -Infinity;
-    var dataProvider;
+    var dataProvider = null;
     /*
     although ammap has methos like getAreaCenterLatitude and getAreaCenterLongitude,
     they are not suitable in quite a lot of cases as the center of some countries
@@ -60,7 +55,8 @@
                 longitude: latlong[id].longitude,
                 latitude: latlong[id].latitude,
                 title: dataItem.name,
-                value: value
+                value: value,
+                selectable: true
             });
         }
         return dataProvider;
@@ -89,12 +85,11 @@
             mapVar: AmCharts.maps.worldLow,
             images: []
         }
-
-
-
-
+        map.addListener("clickMapObject", function (event) {
+            // console.log(event.mapObject);
+            // $("#dialog").dialog();
+        });
         map.dataProvider = createCircles(mapData,dataProvider);
-
         map.write("mapdiv");
     });
 </script>

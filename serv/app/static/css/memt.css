@@ -144,3 +144,10 @@ margin-left: 1%;
     filter: alpha(opacity=0);
 }
 
+#countriesInMap{
+    float: right;
+}
+
+.input-group .form-control{
+    width: 80%;
+}
