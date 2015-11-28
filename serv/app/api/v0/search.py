@@ -21,10 +21,9 @@ class SearchView(FlaskView):
     @route('/<hash>', methods=['GET'])
     def search(self, hash=None):
         if request.method == 'POST':
-            print(dir(request))
-            print(dir(request.form["hash"]))
             hash = request.form["hash"]
         if hash:
+            print("ADIOS")
             assets = mongo.db.assets
             query = assets.find({"$or": [{"ssdeep": {"$eq": hash}}, {"md5": {"$eq": hash}}, {"sha1": {"$eq": hash}}, {"sha256": {"$eq": hash}},{"sha512": {"$eq": hash}}]})
             if query.count() == 0:
