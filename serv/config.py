@@ -16,9 +16,6 @@ class Config(object):
     WTF_CSRF_ENABLED = True
     SSL_DISABLE = True
 
-    SQLALCHEMY_COMMIT_ON_TEARDOWN = True
-    SQLALCHEMY_RECORD_QUERIES = True
-
     CELERY_BROKER_URL = 'amqp://localhost/'
     CELERY_RESULT_BACKEND = "mongodb://localhost:27017/memtJobs"
     CELERY_TASK_RESULT_EXPIRES = 18000  # 5 hours.
@@ -39,6 +36,7 @@ class Config(object):
 
     MONGO_HOST = 'localhost'
     MONGO_PORT = '27017'
+    MONGO_DBNAME = 'memt'
 
     MAXMAIN_DB_COUNTRIES = "/opt/dbs/GeoLite2-Country.mmdb"
     MAXMAIN_DB_CITIES = "/opt/dbs/GeoLite2-City.mmdb"
@@ -64,24 +62,15 @@ class Config(object):
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
-        'sqlite:///' + os.path.join(BASEDIR, 'data-dev.sqlite')
-    MONGO_DBNAME = 'memt'
     WTF_CSRF_ENABLED = False
 
 
 class TestingConfig(Config):
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or \
-        'sqlite:///' + os.path.join(BASEDIR, 'data-test.sqlite')
-    MONGO_DBNAME = 'memt'
     WTF_CSRF_ENABLED = False
 
 
 class ProductionConfig(Config):
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'sqlite:///' + os.path.join(BASEDIR, 'data.sqlite')
-    MONGO_DBNAME = 'memt'
 
     @classmethod
     def init_app(cls, app):
