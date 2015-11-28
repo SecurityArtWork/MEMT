@@ -55,23 +55,23 @@ def submit():
         try:
             response = reader.city(request.remote_addr)
         except (AddressNotFoundError):
-            obj["ipMeta"] = {
-                    "city": "unknown",
-                    "ip": request.remote_addr,
-                    "country": "unknown",
-                    "iso_code": "unknown",
-                    "date": datetime.utcnow(),
-                    "geo": [0.0, 0.0]
-                }
+            obj["ipMeta"] = [{
+                                "city": "unknown",
+                                "ip": request.remote_addr,
+                                "country": "unknown",
+                                "iso_code": "unknown",
+                                "date": datetime.utcnow(),
+                                "geo": [0.0, 0.0]
+                            }]
         else:
-            obj["ipMeta"] = {
-                    "city": response.city.name,
-                    "ip": request.remote_addr,
-                    "country": response.country.name,
-                    "iso_code": response.country.iso_code,
-                    "date": datetime.utcnow(),
-                    "geo": [response.location.longitude, response.location.latitude]
-                }
+            obj["ipMeta"] = [{
+                                "city": response.city.name,
+                                "ip": request.remote_addr,
+                                "country": response.country.name,
+                                "iso_code": response.country.iso_code,
+                                "date": datetime.utcnow(),
+                                "geo": [response.location.longitude, response.location.latitude]
+                            }]
         # Celery task
         print("Sending: {}".format(obj))
         task_id = analysis.delay(memt_dumps(obj))
