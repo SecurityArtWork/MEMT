@@ -37,7 +37,6 @@ def index(hash):
 
 
 def get_object(malware):
-    print("PARSING MALWARE {}".malware)
     obj = {}
     obj["ssdeep"] = malware["ssdeep"]
     obj["md5"] = malware["md5"]

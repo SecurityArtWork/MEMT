@@ -27,12 +27,13 @@ def rt_feed(self):
     feeds = feeds_collection.find({"date": {"$gte": from_}})
     socketio.emit("update", dumps(feeds), namespace=rt_feed_namespace)
 
+
 @celery.task(name="memt.rt.map", bind=True)
 def rt_feed(self):
     assets_collection = mongo.db.assets
     now = datetime.utcnow()
     from_ = now - timedelta(minutes=now.minute % 5 + app.config["RTMAP_REFRESH"], seconds=now.second, microseconds=now.microsecond)
-    assets = assets_collection.find({"date": {"$dte": from_}}, {"ipmeta.iso_code": 1, "ipmeta.city": 1, "ipmeta.country": 1, "ipmeta.geo": 1})
-    socketio.emit("update", dump(assets), namespace=rt_map_namespace)
+    assets = assets_collection.find({"date": {"$gte": from_}}, {"ipmeta.iso_code": 1, "ipmeta.city": 1, "ipmeta.country": 1, "ipmeta.geo": 1})
+    socketio.emit("update", dumps(assets), namespace=rt_map_namespace)
 
 
