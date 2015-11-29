@@ -14,7 +14,7 @@ from app import socketio
 from app.common import get_latest_geo
 from app.common import rt_map_namespace
 
-from app.celery_tasks.realtime import rt_feed
+from app.celery_tasks.realtime import rt_map
 
 
 thread = None
@@ -23,7 +23,7 @@ thread = None
 def connect():
     data = get_latest_geo()
     emit("connect", dumps(data), namespace=rt_map_namespace)
-    rt_feed.delay()
+    rt_map.delay()
     #keep_updating()
 
 

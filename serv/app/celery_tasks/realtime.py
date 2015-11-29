@@ -21,15 +21,16 @@ from app.common import rt_feed_namespace
 
 @celery.task(name="memt.rt.feed", bind=True)
 def rt_feed(self):
-    feeds_collection = mongo.db.feeds
+    feeds_collection = mongo.db.feed
     now = datetime.utcnow()
     from_ = now - timedelta(minutes=now.minute % 5 + app.config["FEED_REFRESH"], seconds=now.second, microseconds=now.microsecond)
-    feeds = feeds_collection.find({"date": {"$gte": from_}})
+    feeds = feeds_collection.find()
+    print(dumps(feeds))
     socketio.emit("update", dumps(feeds), namespace=rt_feed_namespace)
 
 
 @celery.task(name="memt.rt.map", bind=True)
-def rt_feed(self):
+def rt_map(self):
     assets_collection = mongo.db.assets
     now = datetime.utcnow()
     from_ = now - timedelta(minutes=now.minute % 5 + app.config["RTMAP_REFRESH"], seconds=now.second, microseconds=now.microsecond)

@@ -2,7 +2,7 @@ body{
     font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
 }
 #page-wrapper{
-    height:89vh;
+    height:auto;
 }
 .logo{
     margin-left: 62%;

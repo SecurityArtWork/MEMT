@@ -19,7 +19,6 @@
                 {
                     parseRTData(JSON.parse(data));
                 }
-                console.log("connected");
             });
         });
         //Let's parse the JSON data for each item

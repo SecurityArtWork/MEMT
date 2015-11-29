@@ -7,11 +7,9 @@
             // this is specially important when using the global namespace
             var celerysocket = io.connect('http://' + document.domain + ':' + location.port + celery);
 
-            // New sample received from
-            rtsocket.on('update', function(data) {
-                if data['status'] == 200{
-                    redirect(data['hash']);
-                }
+            // New update received from
+            celerysocket.on('update', function(data) {
+                console.log(data);
             });
 
         });
