@@ -10,6 +10,7 @@ from app.extensions import mongo
 
 rt_feed_namespace = "/feed"
 rt_map_namespace = "/rtmap"
+celery_namespace = "/celery"
 
 
 def get_common_info():
