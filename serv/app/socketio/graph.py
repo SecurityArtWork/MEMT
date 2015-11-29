@@ -14,7 +14,7 @@ from app import socketio
 from app.common import get_latest_geo
 from app.common import rt_map_namespace
 
-from app.celery_tasks.realtime import rt_feed
+from app.celery_tasks.realtime import rt_map
 
 
 thread = None

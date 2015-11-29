@@ -8,16 +8,22 @@
 
 {% block body %}
     {{super()}}
-    <div id="page-wrapper">
+    <div id="page-wrapper" style="height: 89vh">
             <div class="container-fluid">
                 <div class="row row-margin">
                     <div class="col-lg-12">
                         <div class="panel panel-default">
                             <div class="panel-heading">
-                                <h3 class="panel-title"><i class="fa fa-cloud-upload fa-fw"></i>Waiting task to be finished.</h3>
+                                <h3 class="panel-title"><i class="fa fa-cloud-upload fa-fw"></i>
+                                    Waiting for task to be finished.</h3>
                             </div>
                             <div class="panel-body">
+                                 <div class="progress">
+                                  <div class="progress-bar progress-bar-striped active" role="progressbar"
+                                  aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%">
 
+                                  </div>
+                                </div>
 
 
 

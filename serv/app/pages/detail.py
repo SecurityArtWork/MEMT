@@ -37,7 +37,6 @@ def index(hash):
 
 
 def get_object(malware):
-    print("PARSING MALWARE {}".malware)
     obj = {}
     obj["ssdeep"] = malware["ssdeep"]
     obj["md5"] = malware["md5"]
@@ -61,8 +60,7 @@ def get_object(malware):
         strains = assets.find({"sha256": obj["strain"]})
         for strain in strains:
             if strain["mutations"] != obj["sha256"]:
-                obj["siblings"].append(strain["mutations"])
-        obj["siblings"].remove(obj["sha256"])
+                obj["siblings"] = strain["mutations"]
 
     del obj["ipmeta"][0]["ip"]
     return obj
