@@ -50,5 +50,10 @@ You can find the installation files (README.md) inside the root of each componen
 
 ## TODOs
 
-* Add the daemon option to the CLI (Actually it only supports manual sending of samples)
-* Improve user interface
+* Add the daemon option to the (Actually it only supports manual sending of samples) –CLI–.
+* Improve user interface –Web–.
+* Add more accurate catalog algorithms –Analysis tooling–.
+
+## NEXT.
+
+Stay tuned for more interesting features comming soon!
