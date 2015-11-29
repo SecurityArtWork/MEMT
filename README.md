@@ -1,3 +1,5 @@
+<img src=https://github.com/SecurityArtWork/MEMT/blob/master/serv/app/static/img/logo.png width=150 height=150 />
+
 ```
  __  __ _____ __  __ _____
 |  \/  | ____|  \/  |_   _|
@@ -41,12 +43,13 @@ As said before, MEMT is a big platform, so MEMT is built upon different modules 
 - Analyzer: It will perform the background task that has been sent by Celery. This tool analyze the binary that has been uploaded into the platform and find for patters among different parameters. Finally it saves update the whole system to be more accurate next time.
 
 ## Installation
-You can find the installation files (README.md) inside the root of each component.
+You can find the installation files (README.md) inside the root of each component. The MEMT team suggest the next order to install the whole platform.
 
-- [Web server](serv/README.md)
-- [Cli](cli/README.md)
-- [Categorizer](cat/README.md)
-- [Analyzer](anal/README.md)
+1. [Categorizer](cat/README.md)
+2. [Analyzer](anal/README.md)
+3. [Cli](cli/README.md)
+4. [Web server](serv/README.md)
+
 
 ## TODOs
 
