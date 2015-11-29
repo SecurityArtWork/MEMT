@@ -31,6 +31,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"time"
 
 	"github.com/securityartwork/anal/hashing"
 	"github.com/securityartwork/cat/binanal"
@@ -69,12 +70,13 @@ func init() {
 }
 
 type Artifact struct {
+	Date        time.Time   `json:"date" bson:"date"`
 	Ssdeep      string      `json:"ssdeep" bson:"ssdeep"`
 	Md5         string      `json:"md5" bson:"md5"`
 	Sha1        string      `json:"sha1" bson:"sha2"`
 	Sha256      string      `json:"sha256" bson:"sha256"`
 	Sha512      string      `json:"sha512" bson:"sha512"`
-	Strain      string      `json:"strain" bson:"strain"` // if strain nil, else strain hash
+	Strain      string      `json:"strain" bson:"strain"`
 	Format      string      `json:"format" bson:"format"`
 	Symbols     []string    `json:"symbols" bson:"symbols"`
 	Imports     []string    `json:"imports" bson:"imports"`
@@ -440,6 +442,9 @@ func (mdb *MongoDatabase) appendChildToStrain(strainHash, mutationHash string) e
 
 // Insert artifact into db
 func (mdb *MongoDatabase) insertArtifact(artifact *Artifact) error {
+	// Set insertion time as analisys date
+	artifact.Date = time.Now()
+
 	col := mdb.db.C(COLNAME)
 	if err := col.Insert(artifact); err != nil {
 		return err
