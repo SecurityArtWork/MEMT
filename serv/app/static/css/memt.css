@@ -1,6 +1,9 @@
 body{
     font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
 }
+#page-wrapper{
+    height:89vh;
+}
 .logo{
     margin-left: 62%;
     height: 100px;
