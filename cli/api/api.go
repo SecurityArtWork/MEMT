@@ -3,10 +3,18 @@
 
 * Search by hash
     => GET /api/v0/search/<hash>
-    <= "http://xx.xx.xx.xx/api/v0/malware/info/<sha256:hash>"
+    <= Response:
+    {
+        "ecode": 302,
+        "msg": "Asset already analysed",
+        "goto": "http://xx.xx.xx.xx/api/v0/malware/info/<sha256:hash>"
+    }
 
-    => GET /api/v0/search/<hash>/<type>
-    <= "http://xx.xx.xx.xx/api/v0/malware/info/<sha256:hash>"
+    {
+        "ecode": 404
+        "info": "This element does not exist"
+        "state": ""
+    }
 
 
 * Get info by hash
@@ -95,58 +103,89 @@
 package api
 
 import (
-	"fmt"
+	"encoding/json"
+	"io/ioutil"
 	"net/http"
 )
 
 const (
-	// API = "http://malhive.io"
-	API = "http://127.0.0.1:8888"
+	// MEMT = "http://malhive.io"
+	MEMT = "http://127.0.0.1:8888"
+	API  = "/api/v0/"
 )
 
-func SendHash(hash string) {
-	endpoint := "/api/v0/search/"
-	url := API + endpoint + hash
+type ArtRes struct {
+	Ssdeep    string   `json:"ssdeep"`
+	Md5       string   `json:"md5"`
+	Sha1      string   `json:"sha1"`
+	Sha256    string   `json:"sha256"`
+	Sha512    string   `json:"sha512"`
+	Format    string   `json:"format"`
+	Symbols   []string `json:"symbols"`
+	Imports   []string `json:"imports"`
+	Sections  []string `json:"sections"`
+	Arch      string   `json:"arch"`
+	Strain    string   `json:"strain"`
+	Mutations []string `json:"mutations"`
+	Siblings  []string `json:"siblings"`
+}
+
+type DataRes struct {
+	Ecode int    `json:"ecode"`
+	Msg   string `json:"msg"`
+	Data  ArtRes `json:"data"`
+}
+
+type SearchRes struct {
+	Ecode int    `json:"ecode"`
+	Msg   string `json:"msg"`
+	Goto  string `json:"goto"`
+}
+
+func SearchHash(hash string) (SearchRes, error) {
+	var sr SearchRes
+	endpoint := "search/"
+	url := MEMT + API + endpoint + hash
 
 	// Get response
-	response, _, err := http.Get(url)
+	response, err := http.Get(url)
 	if err != nil {
-		fmt.Printf("%s", err)
-		os.Exit(1)
+		return sr, err
 	}
 	defer response.Body.Close()
 
-	contents, err := ioutil.ReadAll(response.Body)
+	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		fmt.Printf("%s", err)
-		os.Exit(1)
+		return sr, err
 	}
 
-	fmt.Printf("%s\n", string(contents))
+	// Unmarshal json, and, if error return unprocessable entity
+	if err := json.Unmarshal(body, &sr); err != nil {
+		return sr, err
+	}
+
+	return sr, nil
 }
 
-// func SendArtifactData(hash string) {
-// 	endpoint := "malware/"
+func GetInfo(url string) (DataRes, error) {
+	var dr DataRes
 
-// 	var jsonStr = []byte(`{"sha256":"` + hash + `"}`)
-// 	req, err := http.NewRequest(
-// 		"POST",
-// 		API+endpoint,
-// 		bytes.NewBuffer(jsonStr),
-// 	)
+	// Get response
+	response, err := http.Get(url)
+	if err != nil {
+		return dr, err
+	}
+	defer response.Body.Close()
 
-// 	req.Header.Set("User-Agent", "memt-cli")
-// 	req.Header.Set("Content-Type", "application/json")
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return dr, err
+	}
 
-// 	client := &http.Client{}
-// 	resp, err := client.Do(req)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	defer resp.Body.Close()
+	// Unmarshal json, and, if error return unprocessable entity
+	if err := json.Unmarshal(body, &dr); err != nil {
+		return dr, err
+	}
 
-// 	fmt.Println("response Status:", resp.Status)
-// 	fmt.Println("response Headers:", resp.Header)
-// 	body, _ := ioutil.ReadAll(resp.Body)
-// 	fmt.Println("response Body:", string(body))
-// }
+	return dr, nil
+}
