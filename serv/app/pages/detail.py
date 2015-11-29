@@ -48,7 +48,7 @@ def get_object(malware):
     obj["symbols"] = malware["symbols"]
     obj["imports"] = malware["imports"]
     obj["sections"] = malware["sections"]
-    obj["image"] = get_img_to_b64(os.path.join(BASEDIR, "..", "aux", malware["imageDir"]))
+    obj["image"] = get_img_to_b64(os.path.join(BASEDIR, "..", "aux", malware["imagedir"]))
     obj["arch"] = malware["arch"]
     obj["ipmeta"] = malware["ipMeta"]
     obj["strain"] = malware["strain"]
