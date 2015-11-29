@@ -25,6 +25,8 @@ def index(hash):
     obj = {}
     if malwares:
         for malware in malwares:
+            print(malware["ssdeep"])
+
             # This loop is intended to run just once
             obj["ssdeep"] = malware["ssdeep"]
             obj["md5"] = malware["md5"]
@@ -42,11 +44,11 @@ def index(hash):
             obj["imports"] = malware["imports"]
             obj["sections"] = malware["sections"]
             obj["mutations"] = malware["mutations"]
-            obj["image"] = get_img_to_b64(malware["imagedir"])
+            obj["image"] = get_img_to_b64(malware["imageDir"])
             obj["arch"] = malware["arch"]
             obj["arch"] = malware["arch"]
-            obj["ipmeta"] = malware["ipmeta"]
-            del obj["ipmeta"]["ip"]
+            obj["ipmeta"] = malware["ipMeta"]
+            del obj["ipmeta"][0]["ip"]
             return render_template('detail/index.html', info=obj)
     else:
         flash("", "")

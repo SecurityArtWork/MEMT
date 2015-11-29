@@ -14,7 +14,7 @@
                     <div class="col-lg-8 col-md-8">
 
                         <div class="col-lg-4 col-md-4">
-                            {% if strain %}
+                            {% if not info['strain'] %}
                             <div class="panel-strain">
                                 STRAIN
                             {% else %}
@@ -22,7 +22,6 @@
                                 MUTATION
                             {% endif %}
                             </div>
-
                         </div>
                         <div class="col-lg-8 col-md-8 umi">
                             <div class="panel panel-default">
@@ -33,16 +32,14 @@
                                     <div class="row">
                                         <div class="col-xs-9 text-right">
                                             <div  class="huge" style="font-size: 9px;">
-                                                <p style="text-align: left;">03ba0d00b5c39aa0d8f138dfad7a487e3f8608be88f069984d17bb34728b77ce
+                                                <p style="text-align: left;">
+                                                {{ info.sha256 }}
                                                 </p>
                                             </div>
                                         </div>
-
                                     </div>
                                 </div>
-
                             </div>
-
                         </div>
                         <div class="col-lg-12">
                         <div class="panel panel-default">
@@ -51,34 +48,43 @@
                             </div>
                             <div class="panel-body umi-tree">
                                 <ul>
-                                    <li class="tree-strain ">
-                                        <a href="">UMI-000/100/0</a>
-                                    </li>
+                                    {% if not info['strain'] %}
+                                        <li class="tree-strain itself">
+                                             {{ info['sha256'] }}
+                                        </li>
+                                    {% else %}
+                                        <li class="tree-strain">
+                                            <a href="{{ url_for('detail.index', hash=info['strain']) }}">
+                                                {{ info['strain'] }}
+                                            </a>
+                                        </li>
+
+                                    {% endif %}
+
                                     <ul>
-                                        <li class="tree-mutation itself">
-                                            ⎯ <a href="detail.html/5309424uj234092384234hhj">UMI-000/100/1</a>
-                                        </li>
-                                        <li class="tree-mutation">
-                                            ⎯ <a href="">UMI-000/100/2</a>
-                                        </li>
-                                        <li class="tree-mutation">
-                                            ⎯ <a href="detail.html/5309424uj234092384234hhj">UMI-000/100/3</a>
-                                        </li>
-                                        <li class="tree-mutation">
-                                            ⎯ <a href="">UMI-000/100/4</a>
-                                        </li>
+                                    {% if not info['strain'] %}
+                                        {% if not info['mutations'] %}
                                             <li class="tree-mutation">
-                                            ⎯ <a href="detail.html/5309424uj234092384234hhj">UMI-000/100/5</a>
-                                        </li>
-                                        <li class="tree-mutation">
-                                            ⎯ <a href="">UMI-000/100/6</a>
-                                        </li>
-                                        <li class="tree-mutation">
-                                            ⎯ <a href="detail.html/5309424uj234092384234hhj">UMI-000/100/7</a>
-                                        </li>
-                                        <li class="tree-mutation">
-                                            ⎯ <a href="">UMI-000/100/8</a>
-                                        </li>
+                                                ⎯ Sample W/O mutations.
+                                            </li>
+                                        {% else %}
+                                            {% for mutation in info['mutations'] %}
+                                                <li class="tree-mutation">
+                                                    ⎯ <a href="{{ url_for('detail.index', hash=mutation) }}">
+                                                        {{ mutation }}
+                                                    </a>
+                                                </li>
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% else %}
+                                        {% for sibling in info['siblings'] %}
+                                            <li class="tree-mutation">
+                                                ⎯ <a href="{{ url_for('detail.index', hash=sibling) }}">
+                                                    {{ sibling }}
+                                                </a>
+                                            </li>
+                                        {% endfor %}
+                                    {% endif %}
                                     </ul>
                                 </ul>
                             </div>
@@ -92,7 +98,7 @@
                             </div>
 
                             <p style="line-height: 300px;text-align: center; vertical-align: middle; ">
-                                <img src='sample.jpg' style="width: 300px;"/></p>
+                                <img src='{{ info.image }}' style="width: 300px;"/></p>
                         </div>
                     </div>
 
@@ -144,4 +150,4 @@
 
             </div>
             <!-- /.container-fluid -->
-{% endblock%}
+{% endblock %}

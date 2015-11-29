@@ -93,12 +93,14 @@ color: #ccc;
 
 }
 .tree-strain{
+    font-size: 12px;
     list-style: none;
 }
 .tree-mutation{
-list-style: none;
-border-left: 1px solid;
-margin-left: -25px;
+    list-style: none;
+    border-left: 1px solid;
+    margin-left: -25px;
+    font-size: 10px;
 
 }
 .itself{
