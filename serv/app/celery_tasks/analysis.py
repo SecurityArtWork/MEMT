@@ -32,7 +32,7 @@ def analysis(self, data):
                        data=data,
                        headers=headers)
     resp_data = {"task_id": self.request.id,
-                 "ssha256": sha256}
+                 "sha256": sha256}
     if r.status_code == 200:
         resp_data["ecode"] = 200
         socketio.emit("update", memt_dumps(resp_data), namespace=celery_namespace)

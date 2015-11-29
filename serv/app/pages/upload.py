@@ -75,7 +75,6 @@ def submit():
                                 "geo": [response.location.longitude, response.location.latitude]
                             }]
         # Celery task
-        print("Sending: {}".format(obj))
         task_id = analysis.delay(memt_dumps(obj))
         return redirect(url_for('upload.landing', hash=sha256, task_id=task_id.id))
     return redirect(url_for("index.index"))
