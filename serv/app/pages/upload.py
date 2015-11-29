@@ -11,8 +11,6 @@ from geoip2.errors import AddressNotFoundError
 
 from datetime import datetime
 
-from pymongo import MongoClient
-
 from flask import current_app as app
 from flask import Blueprint
 from flask import render_template
