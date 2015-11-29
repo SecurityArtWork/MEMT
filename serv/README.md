@@ -30,7 +30,7 @@ The order to start all services is as follows, first the databases and then the 
 
 - Celery, you will have to be in the project folder, like `$VIRTUALENV/Web/app/` to be able to execute the following command line successfull:
     ```sh
-    celery worker -A celery_worker.celery
+    celery worker -A celery_worker.celery --beat
     ```
 
 - Gunicorn, you will have to be in the project folder, like $VIRTUALENV/Web/app/ to be able to execute the following command line successfull.

@@ -23,16 +23,21 @@ bp = Blueprint('detail', __name__, url_prefix='/detail')
 def index(hash):
     assets = mongo.db.assets
     malwares = assets.find({"sha256": hash})
-    if malwares:
+    if malwares.count():
         for malware in malwares:
+            print(malware)
             # This loop is intended to run just once
             obj = get_object(malware)
             return render_template('detail/index.html', info=obj)
+        flash("Internal error")
+        return abort(500)
     else:
-        flash("", "")
+        flash("Not found, sorry", "")
         return abort(404)
 
+
 def get_object(malware):
+    print("PARSING MALWARE {}".malware)
     obj = {}
     obj["ssdeep"] = malware["ssdeep"]
     obj["md5"] = malware["md5"]
@@ -45,7 +50,7 @@ def get_object(malware):
     obj["sections"] = malware["sections"]
     obj["image"] = get_img_to_b64(os.path.join(BASEDIR, "..", "aux", malware["imagedir"]))
     obj["arch"] = malware["arch"]
-    obj["ipmeta"] = malware["ipmeta"]
+    obj["ipmeta"] = malware["ipMeta"]
     obj["strain"] = malware["strain"]
 
     if obj["strain"] == "":  # This is a strain
@@ -56,9 +61,7 @@ def get_object(malware):
         strains = assets.find({"sha256": obj["strain"]})
         for strain in strains:
             if strain["mutations"] != obj["sha256"]:
-                obj["siblings"].append(strain["mutations"])
-        obj["siblings"].remove(obj["sha256"])
+                obj["siblings"] = strain["mutations"]
 
     del obj["ipmeta"][0]["ip"]
     return obj
-

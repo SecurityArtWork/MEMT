@@ -11,8 +11,6 @@ from geoip2.errors import AddressNotFoundError
 
 from datetime import datetime
 
-from pymongo import MongoClient
-
 from flask import current_app as app
 from flask import Blueprint
 from flask import render_template
@@ -75,17 +73,15 @@ def submit():
                                 "geo": [response.location.longitude, response.location.latitude]
                             }]
         # Celery task
-        print("Sending: {}".format(obj))
         task_id = analysis.delay(memt_dumps(obj))
         return redirect(url_for('upload.landing', hash=sha256, task_id=task_id.id))
     return redirect(url_for("index.index"))
 
 
-@bp.route("/landing", methods=["GET"])
-def landing(filename=None):
-    if filename:
-        return render_template("upload/landing.html", filename)
-    abort(404)
+@bp.route("/landing/<sha256:hash>/<task_id>", methods=["GET"])
+def landing(hash, task_id):
+    return render_template("upload/landing.html", hash=hash, task_id=task_id)
+
 
 @bp.route("/landing/", methods=["GET"])
 def landing_barra(filename=None):

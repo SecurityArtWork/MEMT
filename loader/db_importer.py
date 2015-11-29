@@ -39,8 +39,8 @@ def main():
         data = json.load(data_file)
         db = client[DB_NAME]
         for obj in data:
-            obj['imageDir'] = os.path.join("..", "aux", "malware", "images", obj['imageDir'].split("/")[-1:][0])
-            obj['artifactDir'] = os.path.join("..", "aux", "malware", "artifacts", obj['artifactDir'].split("/")[-1:][0])
+            obj['imagedir'] = os.path.join("..", "aux", "malware", "images", obj['imagedir'].split("/")[-1:][0])
+            obj['artifactdir'] = os.path.join("..", "aux", "malware", "artifacts", obj['artifactdir'].split("/")[-1:][0])
             if not obj['symbols']:
                 obj['symbols'] = []
             if not obj['imports']:
@@ -51,17 +51,17 @@ def main():
                 obj['sections'] = []
             if not obj['mutations']:
                 obj['mutations'] = []
-            if "ipMeta" in obj:
-                for ip in obj["ipMeta"]:
+            if "ipmeta" in obj:
+                for ip in obj["ipmeta"]:
                     ip["date"] = datetime.utcnow()
             else:
                 ip = socket.inet_ntoa(struct.pack('>I', random.randint(1, 0xffffffff)))
                 try:
                     response = reader.city(ip)
                 except (AddressNotFoundError):
-                    obj["ipMeta"] = [IP]
+                    obj["ipmeta"] = [IP]
                 else:
-                    obj["ipMeta"] = [{
+                    obj["ipmeta"] = [{
                         "city": response.city.name,
                         "ip": ip,
                         "country": response.country.name,
