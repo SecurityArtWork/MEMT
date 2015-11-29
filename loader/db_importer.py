@@ -39,8 +39,8 @@ def main():
         data = json.load(data_file)
         db = client[DB_NAME]
         for obj in data:
-            obj['imageDir'] = os.path.join("..", "aux", "malware", "artifacts", obj['imageDir'].split("/")[-1:][0])
-            obj['artifactDir'] = os.path.join("..", "aux", "malware", "images", obj['artifactDir'].split("/")[-1:][0])
+            obj['imageDir'] = os.path.join("..", "aux", "malware", "images", obj['imageDir'].split("/")[-1:][0])
+            obj['artifactDir'] = os.path.join("..", "aux", "malware", "artifacts", obj['artifactDir'].split("/")[-1:][0])
             if not obj['symbols']:
                 obj['symbols'] = []
             if not obj['imports']:
