@@ -60,7 +60,7 @@ def register_extensions(app):
     mongo.init_app(app, config_prefix='MONGO')
 
     # Setting socketIO in async mode
-    socketio.init_app(app, async_mode='eventlet', engineio_logger=True)
+    socketio.init_app(app, async_mode='eventlet', engineio_logger=False)
     celery.conf.update(app.config)
 
     # Add development helper for the UI

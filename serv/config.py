@@ -6,6 +6,7 @@ from __future__ import absolute_import, print_function
 
 import os
 from kombu import Queue, Exchange
+from celery.schedules import crontab
 
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -33,16 +34,25 @@ class Config(object):
     CELERY_TIMEZONE = 'Europe/Madrid'
     CELERY_ENABLE_UTC = True
     CELERY_CREATE_MISSING_QUEUES = True
-
+    CELERYBEAT_SCHEDULE = {
+        'news-every-minute': {
+            'task': 'memt.rt.feed',
+            'schedule': crontab(minute='*/1')
+        }
+    }
     MONGO_HOST = 'localhost'
     MONGO_PORT = '27017'
     MONGO_DBNAME = 'memt'
+    MONGOFEED_HOST = 'localhost'
+    MONGOFEED_PORT = '27017'
+    MONGOFEED_DBNAME = 'memt'
 
     MAXMAIN_DB_COUNTRIES = "/opt/dbs/GeoLite2-Country.mmdb"
     MAXMAIN_DB_CITIES = "/opt/dbs/GeoLite2-City.mmdb"
 
     RT_LAST_COUNTRIES = 1000
     FEED_LAST_NEWS = 5
+    FEED_REFRESH = 2  # 2 minute
 
     TMP_UPLOAD_FOLDER = os.path.join(BASEDIR, "..", "aux", "uploads")
     BIN_UPLOAD_FOLDER = os.path.join(BASEDIR, "..", "aux", "malware", "artifacts")
