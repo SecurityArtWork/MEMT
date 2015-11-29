@@ -60,4 +60,19 @@ Pong
 
 ➤ $ curl http://127.0.0.1:8888 -XPUT
 Method not allowed
+
+➤ $ curl http://127.0.0.1:8888/api/v0/search/1234567890abcdef
+{"ecode":302,"msg":"Asset already analysed","goto":"http://127.0.0.1:8888/api/v0/malware/info/1234567890abcdef"}
+
+➤ $ curl http://127.0.0.1:8888/api/v0/search/1234567890abcdefa
+{"ecode":200,"msg":"Analysis has been launch in background","goto":"http://127.0.0.1:8888/api/v0/malware/info/1234567890abcdefa/UUID-XXXX-YYYYYYYYY"}
+
+➤ $ curl http://127.0.0.1:8888/api/v0/search/1234567890abcdef -XPOST
+404 page not found
+
+➤ $ curl http://127.0.0.1:8888/api/v0/malware/info/1234567890abcdef
+{"ecode":302,"msg":"Asset already analysed","data":{"ssdeep":"1234567890","md5":"1234567890","sha1":"1234567890","sha256":"1234567890","sha512":"1234567890","format":"pe","symbols":["a","b"],"imports":["a","b"],"sections":["a","b"],"arch":"amd64","strain":"","mutations":["0987654321","5647382910","4536789013"],"siblings":[""]}}
+
+➤ $ curl http://127.0.0.1:8888/api/v0/malware/info/1234567890abcdefs
+{"ecode":404,"msg":"This element does not exist","goto":""}
 ```

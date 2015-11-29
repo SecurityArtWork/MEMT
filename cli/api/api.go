@@ -47,6 +47,26 @@
     }
 
     {
+        "ecode": 302,
+        "msg": "Asset already analysed",
+        "data": {
+            "ssdeep": ""
+            "md5": ""
+            "sha1": ""
+            "sha256": ""
+            "sha512": ""
+            "format": ""
+            "symbols": [""]
+            "imports": [""]
+            "sections": [""]
+            "arch": ""
+            "strain": ""
+            "mutations": [""]
+            "siblings": [""]
+        }
+    }
+
+    {
         "ecode": 404
         "info": "This element does not exist"
         "state": ""

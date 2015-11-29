@@ -44,9 +44,10 @@ type SearchRes struct {
 func main() {
 	// Route definitions
 	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/", pongerAPI)
-	router.HandleFunc("/api/v0/search/{hash}", searchAPI)
-	router.HandleFunc("/api/v0/malware/info/{hash}", infoAPI)
+	router.HandleFunc("/", pongerAPI).Methods("GET", "POST")
+	router.HandleFunc("/api/v0/search/{hash}", searchAPI).Methods("GET")
+	router.HandleFunc("/api/v0/malware/info/{hash}", infoAPI).Methods("GET")
+	router.HandleFunc("/api/v0/malware/info/{hash}/{uuid}", infoUUIDAPI).Methods("GET")
 
 	// Run server
 	log.Printf("Running server on: http://%s", SERVER)
@@ -58,6 +59,7 @@ func main() {
 // =============
 
 // Ponger returns provides a basic echo server
+// 		curl http://127.0.0.1:8888/
 func pongerAPI(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		fmt.Fprintln(w, "Pong")
@@ -77,11 +79,11 @@ func pongerAPI(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-
-	http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 }
 
 // Search endpoint api mocking
+//		curl http://127.0.0.1:8888/api/v0/search/1234567890abcdef
+//  	curl http://127.0.0.1:8888/api/v0/search/1234567890abcdef
 func searchAPI(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	hash := vars["hash"]
@@ -92,14 +94,18 @@ func searchAPI(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(v)
 		return
 	} else {
-		resURL := "http://" + SERVER + "/api/v0/malware/info/" + hash + "/UUID-XXXX-YYYYYYYYY"
-		v := SearchRes{200, "Analysis has been launch in background", resURL}
+		// resURL := "http://" + SERVER + "/api/v0/malware/info/" + hash + "/UUID-XXXX-YYYYYYYYY"
+		// v := SearchRes{200, "Analysis has been launch in background", resURL}
+		// json.NewEncoder(w).Encode(v)
+		// return
+		v := SearchRes{404, "This element does not exist", ""}
 		json.NewEncoder(w).Encode(v)
 		return
 	}
 }
 
 // Info endpoint api mocking
+//  	curl http://127.0.0.1:8888/api/v0/malware/info/1234567890abcdef
 func infoAPI(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	hash := vars["hash"]
@@ -118,7 +124,7 @@ func infoAPI(w http.ResponseWriter, r *http.Request) {
 			Arch:      "amd64",
 			Strain:    "",
 			Mutations: []string{"0987654321", "5647382910", "4536789013"},
-			Siblings:  "",
+			Siblings:  []string{""},
 		}
 
 		v := DataRes{
@@ -135,6 +141,50 @@ func infoAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+// Info endpoint with uuid api mocking
+func infoUUIDAPI(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	// hash := vars["hash"]
+	uuid := vars["uuid"]
+
+	if uuid == "UUID-XXXX-YYYYYYYYY" {
+		a := ArtRes{
+			Ssdeep:    "1234567890",
+			Md5:       "1234567890",
+			Sha1:      "1234567890",
+			Sha256:    "1234567890",
+			Sha512:    "1234567890",
+			Format:    "pe",
+			Symbols:   []string{"a", "b"},
+			Imports:   []string{"a", "b"},
+			Sections:  []string{"a", "b"},
+			Arch:      "amd64",
+			Strain:    "",
+			Mutations: []string{"0987654321", "5647382910", "4536789013"},
+			Siblings:  []string{""},
+		}
+
+		v := DataRes{
+			302,
+			"Asset already analysed",
+			a,
+		}
+
+		json.NewEncoder(w).Encode(v)
+		return
+	} else {
+		v := SearchRes{404, "This element does not exist", ""}
+		json.NewEncoder(w).Encode(v)
+		return
+	}
+}
+
+// TODO: Upload endpoint
+// resURL := "http://" + SERVER + "/api/v0/malware/info/" + hash + "/UUID-XXXX-YYYYYYYYY"
+// v := SearchRes{200, "Analysis has been launch in background", resURL}
+// json.NewEncoder(w).Encode(v)
+// return
 
 // ====================
 // = Helper functions =
