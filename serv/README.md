@@ -13,8 +13,11 @@ Those packages have some dependencies on other technologies, for example, Celery
 
 Starting the server is not simple at first sight, because MongoDB has to be up and running before Celery and Gunicorn, and RabbitMQ (ampq database) needs to be up and running as well so the next instructions explains how you should start the project.
 
-When working with Python you need to set up a virtual environment just to avoid messing up your python library folder. When the environment is ready and you are bind to it, you should run the `pip install -r requirements.txt` and it will install all the dependencies needed for booting up the server. Take in mind that you have to install the correct requirements, since there are several inside requirements folder. Once you have finished with pip, you will run the following commands to start the server up correctly.
+When working with Python you need to set up a virtual environment just to avoid messing up your python library folder in the system. When the environment is ready and you are bind to it, you should run the `pip install -r requirements.txt` and it will install all the dependencies needed for booting up the server. Take in mind that you have to install the correct requirements, since there are several inside requirements folder. Once you have finished with pip, you will run the following commands to start the server up correctly.
 
+In our case you should run `pip install` as follows: From the root of the project type in a shell `pip install -r serv/requirements/prod.txt`, **be sure you are inside a virtual environment jail**.
+
+The order to start all services is as follows, first the databases and then the Celery workers and the Gunicorn server.
 - MongoDB, you will have to execute the follwing command line:
     ```sh
     mongod --dbpath <path to db folder>

@@ -2,6 +2,7 @@
 from __future__ import print_function, absolute_import
 
 import geoip2.database
+import base64
 
 from flask import current_app as app
 
@@ -58,3 +59,8 @@ def get_geo_from_ip(addr):
             "city": city,
             "country": country,
             "iso_code": iso_code}
+
+def get_img_to_b64(img):
+    with open(img, "rb") as image_file:
+        encoded_string = base64.b64encode(image_file.read())
+    return "data:image/png;base64," + encoded_string

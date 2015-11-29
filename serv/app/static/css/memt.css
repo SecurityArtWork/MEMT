@@ -85,11 +85,11 @@ color: #ccc;
   color: white;
   font-family: Verdana;
   font-size: 17px;
-  text-shadow: 3px 3px dark-green;
+  text-shadow: 3px 3px #cc5c00;
   vertical-align: middle;
   text-align: center;
   line-height: 100px;
-  background-color: green;
+  background-color: #EF6C00;
 
 }
 .tree-strain{
