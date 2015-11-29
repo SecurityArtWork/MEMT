@@ -6,6 +6,7 @@ from __future__ import absolute_import
 from flask import Blueprint
 from flask import render_template
 
+from flask import current_app as app
 
 from .common import get_common_info
 
@@ -14,6 +15,7 @@ bp = Blueprint('index', __name__)
 
 @bp.route('/', methods=['GET'])
 def index():
+    print(dir(app))
     info = get_common_info()
     return render_template('index/index.html',
                            totalAssets=info["total_assets"],

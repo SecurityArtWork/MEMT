@@ -12,6 +12,12 @@ rt_feed_namespace = "/feed"
 rt_map_namespace = "/rtmap"
 celery_namespace = "/celery"
 
+messages = {
+    "feed_title": "New analysis",
+    "feed_title_strain": "Strain Found!",
+    "feed_msg": "Dummy text here please."
+}
+
 
 def get_common_info():
     """This function has to be called from inside a  request, beacause it uses a app object.
@@ -30,7 +36,7 @@ def get_common_info():
 def get_latest_feeds(limit=5):
     last_news = []
     feeds = mongo.db.feeds
-    query = feeds.find().sort([("$natural", 1)]).limit(limit)
+    query = feeds.find().sort([("$natural", -1)]).limit(limit)
     for last_new in query:
         last_news.append(last_new)
     return last_news
