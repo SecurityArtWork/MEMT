@@ -10,12 +10,13 @@
             // the data is displayed in the "Received" section of the page
             feedsocket.on('update', function(feeds) {
                 parseFeedData(feeds);
+
             });
 
             // event handler for new connections
             feedsocket.on('connect', function(feeds) {
-
-                parseFeedData(feeds);
+                //feeds.replace(/[^\x00-\x7F]/g, "");
+                //parseFeedData(JSON.parse(feeds));
             });
         });
 
