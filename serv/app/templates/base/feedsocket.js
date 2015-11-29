@@ -39,5 +39,6 @@
             //     a_element = $('<p>').attr('class', 'feed_title').append(obj.title);
             //     a_element = $('<p>').append(obj.msg);
             // });
+            console.log(data);
         };
 </script>
