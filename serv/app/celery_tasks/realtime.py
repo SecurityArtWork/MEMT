@@ -27,6 +27,7 @@ def rt_feed(self):
     feeds = feeds_collection.find({"date": {"$gte": from_}})
     socketio.emit("update", dumps(feeds), namespace=rt_feed_namespace)
 
+
 @celery.task(name="memt.rt.map", bind=True)
 def rt_feed(self):
     assets_collection = mongo.db.assets
