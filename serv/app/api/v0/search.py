@@ -29,13 +29,13 @@ class SearchView(FlaskView):
             if query.count() == 1:
                 for q in query:
                     if type == "json":
-                        return jsonify(res={"ecode": 200, "info": "Found", "data": get_data(q)})
+                        return jsonify(ecode=200, info="Found", data=get_data(q))
                     else:
-                        return jsonify(res={"ecode": 200, "info": "Found", "data": get_data(q)})
+                        return jsonify(ecode=200, info="Found", data=get_data(q))
             if type == "json":
-                return jsonify(res={"ecode": 404, "info": "Not Found", "data": {}})
+                return jsonify(ecode=404, info="Not Found", data={})
             else:
-                return jsonify(res={"ecode": 404, "info": "Not Found", "data": {}})
+                return jsonify(ecode=404, info="Not Found", data={})
 
 def get_data(malware):
     obj = {}
