@@ -70,20 +70,20 @@ func init() {
 
 type Artifact struct {
 	Ssdeep      string      `json:"ssdeep" bson:"ssdeep"`
-	Md5         string      `json:"md5" json:"md5"`
-	Sha1        string      `json:"sha1" json:"sha2"`
-	Sha256      string      `json:"sha256" json:"sha256"`
-	Sha512      string      `json:"sha512" json:"sha512"`
-	Strain      string      `json:"strain" json:"strain"` // if strain nil, else strain hash
-	Format      string      `json:"format" json:"format"`
-	Symbols     []string    `json:"symbols" json:"symbols"`
-	Imports     []string    `json:"imports" json:"imports"`
-	Sections    []string    `json:"sections" json:"sections"`
-	Mutations   []string    `json:"mutations" json:"mutations"`
-	ImageDir    string      `json:"imageDir" json:"imagedir"`
-	ArtifactDir string      `json:"artifactDir" json:"artifactdir"`
-	Arch        string      `json:"arch" json:"arch"`
-	IPMeta      interface{} `json:"ipMeta" json:"ipmeta"`
+	Md5         string      `json:"md5" bson:"md5"`
+	Sha1        string      `json:"sha1" bson:"sha2"`
+	Sha256      string      `json:"sha256" bson:"sha256"`
+	Sha512      string      `json:"sha512" bson:"sha512"`
+	Strain      string      `json:"strain" bson:"strain"` // if strain nil, else strain hash
+	Format      string      `json:"format" bson:"format"`
+	Symbols     []string    `json:"symbols" bson:"symbols"`
+	Imports     []string    `json:"imports" bson:"imports"`
+	Sections    []string    `json:"sections" bson:"sections"`
+	Mutations   []string    `json:"mutations" bson:"mutations"`
+	ImageDir    string      `json:"imageDir" bson:"imagedir"`
+	ArtifactDir string      `json:"artifactDir" bson:"artifactdir"`
+	Arch        string      `json:"arch" bson:"arch"`
+	IPMeta      interface{} `json:"ipMeta" bson:"ipmeta"`
 }
 
 type AnalTask struct {
