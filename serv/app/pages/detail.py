@@ -43,9 +43,9 @@ def get_object(malware):
     obj["symbols"] = malware["symbols"]
     obj["imports"] = malware["imports"]
     obj["sections"] = malware["sections"]
-    obj["image"] = get_img_to_b64(os.path.join(BASEDIR, "..", "aux", malware["imagedir"]))
+    obj["image"] = get_img_to_b64(os.path.join(BASEDIR, "..", "aux", malware["imageDir"]))
     obj["arch"] = malware["arch"]
-    obj["ipmeta"] = malware["ipmeta"]
+    obj["ipmeta"] = malware["ipMeta"]
     obj["strain"] = malware["strain"]
 
     if obj["strain"] == "":  # This is a strain
@@ -56,8 +56,7 @@ def get_object(malware):
         strains = assets.find({"sha256": obj["strain"]})
         for strain in strains:
             if strain["mutations"] != obj["sha256"]:
-                obj["siblings"].append(strain["mutations"])
-        obj["siblings"].remove(obj["sha256"])
+                obj["siblings"] = strain["mutations"]
 
     del obj["ipmeta"][0]["ip"]
     return obj
