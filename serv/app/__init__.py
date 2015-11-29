@@ -27,6 +27,7 @@ from .api.v0.search import SearchView
 from .pages.index import bp as index
 from .pages.list import bp as listbp
 from .pages.detail import bp as detail
+from .pages.search import bp as search
 from .pages.faq import bp as faq
 from .pages.download import bp as download
 from .pages.upload import bp as upload
@@ -59,7 +60,7 @@ def register_extensions(app):
     mongo.init_app(app, config_prefix='MONGO')
 
     # Setting socketIO in async mode
-    socketio.init_app(app, async_mode='eventlet', engineio_logger=False)
+    socketio.init_app(app, async_mode='eventlet', engineio_logger=True)
     celery.conf.update(app.config)
 
     # Add development helper for the UI
@@ -74,6 +75,7 @@ def register_blueprints(app):
     app.register_blueprint(index)
     app.register_blueprint(listbp)
     app.register_blueprint(detail)
+    app.register_blueprint(search)
     app.register_blueprint(faq)
     app.register_blueprint(download)
     app.register_blueprint(upload)

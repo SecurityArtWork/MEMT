@@ -8,8 +8,6 @@ from flask_socketio import emit
 from bson.json_util import dumps
 
 from app import celery
-from app.common import rt_map_namespace
-from app.common import get_latest_geo
 
 
 @celery.task(name="memt.rt.feed", bind=True)
@@ -18,7 +16,5 @@ def rt_feed(self):
 
 @celery.task(name="memt.rt.map", bind=True)
 def rt_feed(self):
-    print(dir(self))
-    data = get_latest_geo()
-    emit('update', dumps(data), namespace=rt_map_namespace)
+    pass
 
