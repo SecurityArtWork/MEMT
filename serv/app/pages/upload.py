@@ -50,7 +50,8 @@ def submit():
                 return redirect(url_for("detail.index", hash=sha256))
         ## Celery
         obj = {
-            "path": os.path.join(app.config['TMP_UPLOAD_FOLDER'], filename)
+            "path": os.path.join(app.config['TMP_UPLOAD_FOLDER'], filename),
+            "sha256": sha256
         }
         reader = geoip2.database.Reader(app.config['MAXMAIN_DB_CITIES'])
         try:
