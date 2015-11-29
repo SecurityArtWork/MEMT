@@ -23,7 +23,7 @@ thread = None
 def connect():
     data = get_latest_geo()
     emit("connect", dumps(data), namespace=rt_map_namespace)
-    rt_feed.delay()
+    #rt_feed.delay()
     #keep_updating()
 
 

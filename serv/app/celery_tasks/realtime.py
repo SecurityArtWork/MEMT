@@ -28,7 +28,7 @@ def rt_feed(self):
     socketio.emit("update", dumps(feeds), namespace=rt_feed_namespace)
 
 @celery.task(name="memt.rt.map", bind=True)
-def rt_feed(self):
+def rt_map(self):
     assets_collection = mongo.db.assets
     now = datetime.utcnow()
     from_ = now - timedelta(minutes=now.minute % 5 + app.config["RTMAP_REFRESH"], seconds=now.second, microseconds=now.microsecond)
