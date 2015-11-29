@@ -37,7 +37,6 @@ def index(hash):
 
 
 def get_object(malware):
-    print("PARSING MALWARE {}".malware)
     obj = {}
     obj["ssdeep"] = malware["ssdeep"]
     obj["md5"] = malware["md5"]
@@ -50,7 +49,7 @@ def get_object(malware):
     obj["sections"] = malware["sections"]
     obj["image"] = get_img_to_b64(os.path.join(BASEDIR, "..", "aux", malware["imagedir"]))
     obj["arch"] = malware["arch"]
-    obj["ipmeta"] = malware["ipMeta"]
+    obj["ipmeta"] = malware["ipmeta"]
     obj["strain"] = malware["strain"]
 
     if obj["strain"] == "":  # This is a strain

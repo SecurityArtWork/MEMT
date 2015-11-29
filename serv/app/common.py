@@ -35,7 +35,7 @@ def get_common_info():
 
 def get_latest_feeds(limit=5):
     last_news = []
-    feeds = mongo.db.feeds
+    feeds = mongo.db.feed
     query = feeds.find().sort([("$natural", -1)]).limit(limit)
     for last_new in query:
         last_news.append(last_new)
