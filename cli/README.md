@@ -34,7 +34,7 @@ After this, a symlink must be created to the `$GOPATH`, if you don't have a oper
 Now you can build the categorizer issuing:
 
 
-```go
+```bash
 go get
 go build memt.go
 ```
@@ -42,10 +42,22 @@ go build memt.go
 
 ## Usage
 
-```
+```bash
 ./memt -h
 
 Usage of memt:
   …
 ```
 
+## Testing the server
+
+```bash
+➤ $ curl http://127.0.0.1:8888
+Pong
+
+➤ $ curl http://127.0.0.1:8888 -XPOST
+{"msg":"Pong"}
+
+➤ $ curl http://127.0.0.1:8888 -XPUT
+Method not allowed
+```

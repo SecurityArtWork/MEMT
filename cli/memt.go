@@ -4,10 +4,11 @@ import (
 	"crypto/sha256"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 
-	// "github.com/securityartwork/Cli/api"
+	"github.com/securityartwork/cli/api"
 )
 
 var usage = `
@@ -96,18 +97,25 @@ func main() {
 	}
 
 	// Send file SHA256
-	if !watchFlag {
-		// Open file
-		file, err := os.Open(fileFlag)
+	if !watchFlag && fileFlag != "" {
+		// Read file into byte array
+		file, err := ioutil.ReadFile(fileFlag)
 		checkErr(err)
-		defer file.Close()
 
-		hash, err := sha256.(fileFlag)
+		// Hash file
+		hasher := sha256.New()
+		_, err = hasher.Write(file)
 		checkErr(err)
-		verbPrint("{sha256:", fmt.Sprintf("%x}", hash))
-		// TODO: Send to server
+		hash := hasher.Sum(nil)
+		hashStr := fmt.Sprintf("%x", hash)
+		verbPrint("{sha256: %s}", hashStr)
+
+		// Send hash to server
+		cli.SendHash(hashStr)
 		os.Exit(0)
 	}
+
+	// TODO: Send file to server
 
 	// TODO: Send new files in path
 	if watchFlag {
