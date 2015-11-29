@@ -1,9 +1,39 @@
-# MEMT Categorizer
+# MEMT Analyzer
 
-Tool for generate the initial dataset from your samples.
+Tool for generating the initial dataset from your samples. This tool classifies, all your samples and outputs a nice JSON ready to be imported into MongoDB, it also generates all the images regarding your samples.
 
-## Prerequisites
+## Building and installation
 
-## Compilation
+First we need to clone the project repository:
 
-## Available options
+`git clone https://github.com/SecurityArtWork/MEMT`
+
+After this, a symlink must be created to the `$GOPATH`, if you don't have a operative Go environment you should setup one before going further.
+
+`ln -s /home/securityartwork/MEMT/cat /go/src/github.com/securityartwork/cat`
+
+Now you can build the categorizer issuing:
+
+
+```go
+go get
+go build categorizer.go
+```
+
+
+## Usage
+
+```
+./categorizer -h
+
+Usage of categorizer:
+  -dir string
+        Dir to scan. (default "./")
+  -imgout string
+        Output directory of generated pictures. (default "/tmp")
+  -threshold int
+        Sets threshold to compare (default 1)
+  -verbose
+        Goes verbose.
+```
+
