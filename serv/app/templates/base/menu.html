@@ -35,23 +35,14 @@
             </a>
         </li>-->
         <li>
-            <a href="index.html">
+            <a href="">
                 <i class="fa fa-fw fa-download"></i>
                 CLI Download
             </a>
         </li>
-         <li>
-            <a href="index.html">
-                <i class="fa fa-fw glyphicon-info-sign"></i>
-                F.A.Q.
-            </a>
-        </li>
-        <li>
-
-        </li>
     </ul>
     <div class="input-group search-box">
-        <form method="POST" action="{{ url_for('SearchView:search_1') }}">
+        <form method="POST" action="{{ url_for('search.index') }}">
             <input name="hash" type="text" class="form-control" placeholder="Search hash...">
             <span class="input-group-btn">
                 <button class="btn btn-default" type="submit">Go!</button>
