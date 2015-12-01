@@ -10,21 +10,26 @@
 
             // New sample received from
             rtsocket.on('update', function(data) {
-
+                console.debug("UPDATING...");
+                parseRTData(JSON.parse(data));
             });
 
             // event handler for new connections
             rtsocket.on('connect', function(data) {
+                console.debug("CONNECTED...");
                 if ( data !== undefined )
                 {
+                    console.debug("CONNECTED... GOT DATA");
                     parseRTData(JSON.parse(data));
+                } else{
+                    console.debug("CONNECTED... NO DATA");
                 }
             });
         });
         //Let's parse the JSON data for each item
         function parseRTData(data) {
             $.each(data, function(index, item){
-                $.each(item.ipMeta, function(idx, ip) {
+                $.each(item.ipmeta, function(idx, ip) {
                     if ( ip.iso_code in CountryCounter )
                     {
                         //increment the number of samples uploaded from this country

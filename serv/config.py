@@ -31,16 +31,16 @@ class Config(object):
     CELERY_TASK_SERIALIZER = 'memtjson'
     CELERY_RESULT_SERIALIZER = 'memtjson'
     CELERY_ACCEPT_CONTENT = ['memtjson']
-    CELERY_TIMEZONE = 'Europe/Madrid'
+    CELERY_TIMEZONE = 'UTC' #Europe/Madrid'
     CELERY_ENABLE_UTC = True
     CELERY_CREATE_MISSING_QUEUES = True
     CELERYBEAT_SCHEDULE = {
         'news-every-minute': {
-            'task': 'memt.rt.feed',
+            'task': 'app.celery_tasks.realtime.rt_feed',
             'schedule': crontab(minute='*/1')
         },
         'rtmap-every-minute': {
-            'task': 'memt.rt.map',
+            'task': 'app.celery_tasks.realtime.rt_map',
             'schedule': crontab(minute='*/1')
         }
     }

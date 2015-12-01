@@ -25,7 +25,6 @@ def index(hash):
     malwares = assets.find({"sha256": hash})
     if malwares.count():
         for malware in malwares:
-            print(malware)
             # This loop is intended to run just once
             obj = get_object(malware)
             return render_template('detail/index.html', info=obj)
@@ -37,6 +36,7 @@ def index(hash):
 
 
 def get_object(malware):
+    print("MALWARE: {}".format(malware))
     obj = {}
     obj["ssdeep"] = malware["ssdeep"]
     obj["md5"] = malware["md5"]
@@ -47,10 +47,10 @@ def get_object(malware):
     obj["symbols"] = malware["symbols"]
     obj["imports"] = malware["imports"]
     obj["sections"] = malware["sections"]
-    obj["image"] = get_img_to_b64(os.path.join(BASEDIR, "..", "aux", malware["imagedir"]))
     obj["arch"] = malware["arch"]
     obj["ipmeta"] = malware["ipmeta"]
     obj["strain"] = malware["strain"]
+    obj["image"] = get_img_to_b64(os.path.join(BASEDIR, malware["imagedir"]))
 
     if obj["strain"] == "":  # This is a strain
         obj["mutations"] = malware["mutations"]

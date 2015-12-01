@@ -2,35 +2,19 @@
 from __future__ import print_function, absolute_import
 import time
 
-from threading import Thread
 from bson.json_util import dumps
 
 from flask import request, session
 from flask_socketio import emit
 
 from app import socketio
-
 from app.common import get_latest_feeds
+from app.common import rt_feed_namespace
 
-namespace = "/feed"
-thread = None
 
-@socketio.on('connect', namespace=namespace)
+@socketio.on('connect', namespace=rt_feed_namespace)
 def connect():
+    print("SENDING FEED")
     data = get_latest_feeds()
-    emit("connect", dumps(data), namespace=namespace)
-    #keep_updating()
-
-
-def background_thread():
-    while True:
-        time.sleep(10)
-        data = get_latest_feeds()
-        emit('update', dumps(data), namespace=namespace)
-
-def keep_updating():
-    global thread
-    if thread is None:
-        thread = Thread(target=background_thread)
-        thread.daemon = True
-        thread.start()
+    print("RT-FEED: {}".format(data))
+    emit("connect", dumps(data), namespace=rt_feed_namespace)

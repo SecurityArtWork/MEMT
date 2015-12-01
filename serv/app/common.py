@@ -44,10 +44,12 @@ def get_latest_feeds(limit=5):
 def get_latest_geo(limit=100):
     last_countries = []
     assets = mongo.db.assets
-    query = assets.find({}, {"ipMeta.iso_code": 1,
-                             "ipMeta.country": 1,
-                             "ipMeta.city": 1,
-                             "ipMeta.geo": 1}).limit(limit)
+    query = assets.find({"ipmeta.country": {"$ne": "unknown"}},
+                        {"ipmeta.iso_code": 1,
+                         "ipmeta.country": 1,
+                         "ipmeta.city": 1,
+                         "ipmeta.geo": 1}).sort([("$natural", -1)])\
+                                          .limit(limit)
     for last_country in query:
         last_countries.append(last_country)
     return last_countries
@@ -68,6 +70,9 @@ def get_geo_from_ip(addr):
             "iso_code": iso_code}
 
 def get_img_to_b64(img):
-    with open(img, "rb") as image_file:
-        encoded_string = base64.b64encode(image_file.read())
+    try:
+        with open(img, "rb") as image_file:
+            encoded_string = base64.b64encode(image_file.read())
+    except (IOError):
+        return "data:image/png;base64,"
     return "data:image/png;base64," + encoded_string
