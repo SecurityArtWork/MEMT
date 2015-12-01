@@ -21,13 +21,6 @@ MICROSERVICE = "http://localhost:31337"
 
 @celery.task(name="memt.analysis", bind=True)
 def analysis(self, data):
-    try:
-        tmp = memt_loads(data)
-        sha256 = tmp["sha256"]
-        del tmp["sha256"]
-        data = memt_dumps(tmp)
-    except (TypeError):
-        pass
     headers = {'user-agent': 'MEMT-Server/{}'.format(__version__),
                'content-type': 'application/json'}
     r = requests.post(MICROSERVICE,

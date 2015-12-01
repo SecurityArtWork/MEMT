@@ -39,6 +39,7 @@ def main():
         data = json.load(data_file)
         db = client[DB_NAME]
         for obj in data:
+            obj["date"] = datetime.utcnow()
             obj['imagedir'] = os.path.join("..", "aux", "malware", "images", obj['imagedir'].split("/")[-1:][0])
             obj['artifactdir'] = os.path.join("..", "aux", "malware", "artifacts", obj['artifactdir'].split("/")[-1:][0])
             if not obj['symbols']:
