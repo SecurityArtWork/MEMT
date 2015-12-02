@@ -14,7 +14,6 @@ from app.common import rt_feed_namespace
 
 @socketio.on('connect', namespace=rt_feed_namespace)
 def connect():
-    print("SENDING FEED")
+    print("FEED - Connected")
     data = get_latest_feeds()
-    print("RT-FEED: {}".format(data))
-    emit("connect", dumps(data), namespace=rt_feed_namespace)
+    #emit("connect", dumps(data), namespace=rt_feed_namespace)

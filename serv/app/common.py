@@ -14,8 +14,9 @@ celery_namespace = "/celery"
 
 messages = {
     "feed_title": "New analysis",
+    "feed_msg": "",
     "feed_title_strain": "Strain Found!",
-    "feed_msg": "Dummy text here please."
+    "feed_msg_strain": "New malware found!! Checkout this link and get more info."
 }
 
 
@@ -70,6 +71,7 @@ def get_geo_from_ip(addr):
             "iso_code": iso_code}
 
 def get_img_to_b64(img):
+    print("IMG LOC: {}".format(img))
     try:
         with open(img, "rb") as image_file:
             encoded_string = base64.b64encode(image_file.read())

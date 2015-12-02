@@ -28,10 +28,10 @@
                     feed_li = feed_ul.append($('<li>'));
                     console.log(feed_li);
                     feed_li.append($('<i>').attr('class', 'fa fa-fw fa-bullhorn fa-2x'));
-                    a_element = $('<a>').attr('href','http://' + document.domain + '/detail/'+obj.sha256)
+                    a_element = $('<a>').attr('href', window.location.protocol + '//' + document.domain + '/detail/'+obj.sha256)
                     a_element = $('<p>').attr('class', 'feed_title').append(obj.title[0]);
                     a_element = $('<p>').append(obj.msg);
-                    if ( obj.criticaly[0] == 'danger') {
+                    if ( obj.criticaly[0] === 'danger') {
                         feed_li.append(a_element.attr('class', 'strain'));
                     }
                     feed_li.append(a_element);
