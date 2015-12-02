@@ -10,6 +10,7 @@
             // the data is displayed in the "Received" section of the page
             feedsocket.on('update', function(feeds) {
                 parseFeedData(feeds);
+
             });
 
             // event handler for new connections
