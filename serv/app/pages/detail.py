@@ -51,7 +51,7 @@ def get_object(malware):
     obj["ipmeta"] = malware["ipmeta"]
     obj["strain"] = malware["strain"]
     obj["image"] = get_img_to_b64(os.path.join(BASEDIR, malware["imagedir"]))
-
+    print(())
     if obj["strain"] == "":  # This is a strain
         obj["mutations"] = malware["mutations"]
     else:  # This is a mutation

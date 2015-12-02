@@ -51,6 +51,8 @@ class Config(object):
     MAXMAIN_DB_COUNTRIES = "/opt/dbs/GeoLite2-Country.mmdb"
     MAXMAIN_DB_CITIES = "/opt/dbs/GeoLite2-City.mmdb"
 
+    ANAL_SERVICE = "http://localhost:31337"
+
     RT_LAST_COUNTRIES = 100
     RTMAP_REFRESH = 2  # 2 minutes
     FEED_LAST_NEWS = 5

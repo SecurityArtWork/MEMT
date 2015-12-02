@@ -20,7 +20,7 @@ from flask import url_for
 from flask import abort
 
 from werkzeug import secure_filename
-
+from app.extensions import mongo
 from app.forms.upload import UploadForm
 from app.celery_tasks.analysis import analysis
 
