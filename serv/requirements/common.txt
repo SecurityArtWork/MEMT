@@ -17,7 +17,7 @@ gunicorn==19.3.0
 ipaddr==2.1.11
 greenlet==0.4.9
 itsdangerous==0.24
-Jinja2==2.8
+Jinja2==2.11.3
 kombu==3.0.29
 MarkupSafe==0.23
 maxminddb==1.2.0
